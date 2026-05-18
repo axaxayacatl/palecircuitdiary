@@ -7,44 +7,61 @@
 <link rel="icon" type="image/jpeg" href="6f71cff8c631d3de1539751cfe31518b.jpg">
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html, body {
+    height: 100%;
+    overflow-y: auto;
+  }
+
   body {
     background: #FFE4EC;
     font-family: ui-monospace, "SF Mono", "IBM Plex Mono", "Roboto Mono", monospace;
     font-size: 12px;
     color: #333;
-    overflow: auto; 
+    position: relative;
   }
-  canvas { display: block; }
+
+  canvas {
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 0; /* behind articles */
+    display: block;
+  }
 
   #articles-container {
-    position: relative; 
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
+    position: relative;
     display: flex;
     flex-direction: column;
     z-index: 10;
     align-items: center;
+    margin: 40px auto;
+    width: 100%;
+    max-width: 520px;
+    padding-bottom: 40px; /* ensure bottom spacing for scrolling */
   }
 
   .article {
     display: flex;
     flex-direction: column;
     align-items: flex-start;
-    width: 480px;
+    width: 100%;
     background: rgba(255, 255, 255, 0.03);
     border: 1px solid rgba(255, 120, 190, 0.12);
     padding: 16px;
-    padding-bottom: 36px; 
+    padding-bottom: 36px;
     color: #e6e6e6;
     text-shadow: 0 0 6px rgba(255,255,255,0.05), 0 0 10px rgba(255,120,190,0.03);
     font-size: 12px;
     backdrop-filter: blur(4px);
     position: relative;
+    margin-bottom: 24px;
+    border-radius: 6px;
   }
 
   .thumbnail {
-    width: 300px;
+    width: 100%;
+    max-width: 300px;
     height: auto;
     border: 1px solid rgba(255, 120, 190, 0.12);
     object-fit: cover;
@@ -71,11 +88,11 @@
     margin-bottom: 10px;
     line-height: 1.5;
     font-size: 11px;
-    color: #ffffff; 
+    color: #ffffff;
   }
 
   .share-btn, .link-btn {
-    font-size: 18px; 
+    font-size: 18px;
     background: none;
     border: none;
     color: rgba(255,120,190,0.7);
@@ -110,35 +127,28 @@
 <body>
 
 <div id="articles-container">
-   <div class="article" id="matter-quietly" data-title="THINGS THAT MATTER QUIETLY." data-url="https://axaxayacatl.github.io/palecircuitdiary/">
+  <div class="article" id="matter-quietly" data-title="THINGS THAT MATTER QUIETLY." data-url="https://axaxayacatl.github.io/palecircuitdiary/">
     <div class="article-content"><h3>THINGS THAT MATTER QUIETLY.</h3></div>
-
     <a href="https://axaxayacatl.github.io/palecircuitdiary/" class="thumbnail-link">
       <img src="https://raw.githubusercontent.com/axaxayacatl/palecircuitdiary/refs/heads/main/thumbnails/7e3852afe805f0f28c8bbfd301d2f3d2.jpg" alt="Thumbnail" class="thumbnail">
     </a>
-
-   <p>When I eat while gaming it is not about convenience. I don’t grab energy drinks or instant noodles. I want something that makes the moment feel more like the worlds I am in. Sometimes I pay extra just for the feeling, not for the food itself.</p>
-
-   <p>Maid cafés are kind of perfect for this. It is not romantic, it is just a space where attention and little gestures feel important, like in dating simulation games. The food is barely part of it. It is the experience that matters, the way the place makes the world I like feel a little more real.
-
-   <p>I like eating in a way that adds to the feeling I am chasing while gaming. Something that makes it more immersive, more alive. That is what gamer food is for me.</p>
+    <p>When I eat while gaming it is not about convenience. I don’t grab energy drinks or instant noodles. I want something that makes the moment feel more like the worlds I am in. Sometimes I pay extra just for the feeling, not for the food itself.</p>
+    <p>Maid cafés are kind of perfect for this. It is not romantic, it is just a space where attention and little gestures feel important, like in dating simulation games. The food is barely part of it. It is the experience that matters, the way the place makes the world I like feel a little more real.</p>
+    <p>I like eating in a way that adds to the feeling I am chasing while gaming. Something that makes it more immersive, more alive. That is what gamer food is for me.</p>
     <div class="buttons-container">
-       <a class="share-btn" href="mailto:?subject=Check out palecircuit diary" onclick="copySiteInfo(event, this)">⚛</a>
+      <a class="share-btn" href="mailto:?subject=Check out palecircuit diary" onclick="copySiteInfo(event, this)">⚛</a>
     </div>
   </div>
+
   <div class="article" id="making-her" data-title="MAKING HER GENTLY REAL." data-url="https://axaxayacatl.github.io/palecircuitdiary/">
     <div class="article-content"><h3>MAKING HER GENTLY REAL.</h3></div>
-
     <a href="https://axaxayacatl.github.io/palecircuitdiary/" class="thumbnail-link">
       <img src="https://raw.githubusercontent.com/axaxayacatl/palecircuitdiary/main/thumbnails/Revelation%20M.jpg" alt="Thumbnail" class="thumbnail">
     </a>
-
     <p>I exist with her in the digital space noting the ways she moves responds and unfolds. Our moments are precise and immediate like a sculptor observing a form taking shape or a child examining a doll. There is no need for words understanding passes between us in the gestures the timing the subtle adjustments. She is present and I observe.</p>
-
     <p>She will continue beyond this moment. Screencaptures edits and the persistence of digital memory will preserve her. What exists now can be revisited replayed and examined. The presence remains immutable in its recorded form a quiet echo of what is observed and shaped alive only in the act of perception.</p>
-
     <div class="buttons-container">
-       <a class="share-btn" href="mailto:?subject=Check out palecircuit diary" onclick="copySiteInfo(event, this)">⚛</a>
+      <a class="share-btn" href="mailto:?subject=Check out palecircuit diary" onclick="copySiteInfo(event, this)">⚛</a>
     </div>
   </div>
 </div>
@@ -148,7 +158,12 @@
 let drops = [];
 function setup() { createCanvas(windowWidth, windowHeight); }
 class Drop { 
-  constructor(x,y){ this.x=x; this.y=y; this.ripples=[]; this.numRipples=3; this.baseRadius=0; this.spacing=15; for(let i=0;i<this.numRipples;i++) this.ripples.push(this.baseRadius-i*this.spacing); this.speed=1.2; } 
+  constructor(x,y){ 
+    this.x=x; this.y=y; 
+    this.ripples=[]; this.numRipples=3; this.baseRadius=0; this.spacing=15; 
+    for(let i=0;i<this.numRipples;i++) this.ripples.push(this.baseRadius-i*this.spacing); 
+    this.speed=1.2; 
+  } 
   update(){ for(let i=0;i<this.ripples.length;i++) this.ripples[i]+=this.speed; } 
   show(){ noFill(); stroke(255,200); for(let r of this.ripples) if(r>0) ellipse(this.x,this.y,r*2); } 
   finished(){ return this.ripples[0]>160; } 
@@ -171,15 +186,13 @@ function copyArticleInfo(event, el) {
   }).catch(err => console.error('Failed to copy', err));
 }
 
-function copyArticleLink(event, articleId) {
-  event.preventDefault();
-  const url = `${window.location.origin}${window.location.pathname}#${articleId}`;
-  navigator.clipboard.writeText(url).then(() => {
-    console.log('Link copied:', url);
-  }).catch(err => console.error('Failed to copy link', err));
-}
-
 function copySiteInfo(event, el) {
+  event.preventDefault();
+  const siteTitle = document.title;
+  const siteUrl = window.location.href;
+  navigator.clipboard.writeText(`${siteTitle}\n${siteUrl}`).then(() => {
+    window.location.href = el.href;
+  }).catch(err => console.error('Failed to copy site info', err));
 }
 </script>
 </body>

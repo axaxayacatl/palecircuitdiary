@@ -38,7 +38,7 @@
     margin: 40px auto;
     width: 100%;
     max-width: 520px;
-    padding-bottom: 40px; /* bottom spacing for scrolling */
+    padding-bottom: 40px; 
   }
 
   .article {
@@ -184,7 +184,7 @@ function draw(){
     drops[i].show(); 
     if(drops[i].finished()) drops.splice(i,1); 
   }
-  if(drops.length === 0) noLoop(); // stop loop when no drops
+  if(drops.length === 0) noLoop();
 }
 
 function windowResized(){ 

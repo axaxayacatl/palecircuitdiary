@@ -6,78 +6,156 @@
 <title>palecircuit diary</title>
 <link rel="icon" type="image/jpeg" href="6f71cff8c631d3de1539751cfe31518b.jpg">
 <style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
   body {
-    margin: 0;
+    background: #FFE4EC;
+    font-family: ui-monospace, "SF Mono", "IBM Plex Mono", "Roboto Mono", monospace;
+    font-size: 12px;
+    color: #333;
     overflow: hidden;
-    background-color: #FFE4EC; 
   }
   canvas { display: block; }
+
+
+  #articles-container {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    display: flex;
+    flex-direction: column;
+    z-index: 10;
+    align-items: center;
+  }
+
+
+  .article {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    width: 480px;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 120, 190, 0.12);
+    padding: 16px;
+    padding-bottom: 36px; /* extra bottom padding for buttons */
+    color: #e6e6e6;
+    text-shadow: 0 0 6px rgba(255,255,255,0.05), 0 0 10px rgba(255,120,190,0.03);
+    font-size: 12px;
+    backdrop-filter: blur(4px);
+    position: relative;
+  }
+
+
+  .article-content h3 {
+    font-size: 16px;
+    font-weight: 400;
+    color: #fff;
+    margin-bottom: 10px;
+    text-align: left;
+  }
+
+
+  .thumbnail {
+    width: 100%;
+    height: auto;
+    border: 1px solid rgba(255, 120, 190, 0.12);
+    object-fit: cover;
+    margin-bottom: 8px;
+  }
+
+
+  .buttons-container {
+    position: absolute;
+    bottom: 8px;
+    right: 8px;
+    display: flex;
+    gap: 8px;
+  }
+
+
+  .share-btn, .link-btn {
+    font-size: 18px; 
+    background: none;
+    border: none;
+    color: rgba(255,120,190,0.7);
+    font-family: monospace, serif, sans-serif;
+    cursor: pointer;
+    text-decoration: none;
+    line-height: 1;
+  }
+
+  body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    opacity: 0.08;
+    background-image: radial-gradient(circle, rgba(255,255,255,0.35) 1px, transparent 1px);
+    background-size: 6px 6px;
+    mix-blend-mode: overlay;
+  }
+
+  body::after {
+    content: "";
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    background: radial-gradient(circle at center,
+      rgba(0,0,0,0) 0%,
+      rgba(0,0,0,0.15) 100%);
+  }
 </style>
 </head>
 <body>
+
+<div id="articles-container">
+  <div class="article" id="dreaming-machine" data-title="Dreaming Machine" data-url="https://your-site.com/dreaming-machine">
+    <div class="article-content"><h3>Dreaming Machine</h3></div>
+    <img src="thumbnail1.gif" alt="Thumbnail" class="thumbnail">
+    <div class="buttons-container">
+
+      <a class="share-btn" href="mailto:?subject=Dreaming Machine" onclick="copyArticleInfo(event, this)">⚛</a>
+
+      <a class="link-btn" href="#" onclick="copyArticleLink(event, 'dreaming-machine')">☾</a>    </div>
+  </div>
+</div>
+
 <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.6.0/p5.min.js"></script>
 <script>
 let drops = [];
-
-function setup() {
-  createCanvas(windowWidth, windowHeight);
+function setup() { createCanvas(windowWidth, windowHeight); }
+class Drop { 
+  constructor(x,y){ this.x=x; this.y=y; this.ripples=[]; this.numRipples=3; this.baseRadius=0; this.spacing=15; for(let i=0;i<this.numRipples;i++) this.ripples.push(this.baseRadius-i*this.spacing); this.speed=1.2; } 
+  update(){ for(let i=0;i<this.ripples.length;i++) this.ripples[i]+=this.speed; } 
+  show(){ noFill(); stroke(255,200); for(let r of this.ripples) if(r>0) ellipse(this.x,this.y,r*2); } 
+  finished(){ return this.ripples[0]>160; } 
 }
-
-class Drop {
-  constructor(x, y) {
-    this.x = x;
-    this.y = y;
-    this.ripples = []; 
-    this.numRipples = 3; 
-    this.baseRadius = 0;
-    this.spacing = 15; 
-
-    for (let i = 0; i < this.numRipples; i++) {
-      this.ripples.push(this.baseRadius - i * this.spacing);
-    }
-    this.speed = 1.2;
-  }
-
-  update() {
-    for (let i = 0; i < this.ripples.length; i++) {
-      this.ripples[i] += this.speed;
-    }
-  }
-
-  show() {
-    noFill();
-    stroke(255); 
-    for (let r of this.ripples) {
-      if (r > 0) ellipse(this.x, this.y, r * 2);
-    }
-  }
-
-  finished() {
-    return this.ripples[0] > 160; 
-  }
-}
-
-function draw() {
+function draw(){ 
   background('#FFE4EC'); 
-  if (frameCount % 60 === 0) { 
-    let x = random(width * 0.1, width * 0.9);
-    let y = random(height * 0.1, height * 0.9);
-    drops.push(new Drop(x, y));
-  }
+  if(frameCount%60===0) drops.push(new Drop(random(width*0.1,width*0.9), random(height*0.1,height*0.9)));
+  for(let i=drops.length-1;i>=0;i--){ drops[i].update(); drops[i].show(); if(drops[i].finished()) drops.splice(i,1); }
+}
+function windowResized(){ resizeCanvas(windowWidth, windowHeight); }
 
-  for (let i = drops.length - 1; i >= 0; i--) {
-    drops[i].update();
-    drops[i].show();
-    if (drops[i].finished()) {
-      drops.splice(i, 1);
-    }
-  }
+function copyArticleInfo(event, el) {
+  event.preventDefault();
+  const article = el.closest('.article');
+  const title = article.dataset.title;
+  const url = article.dataset.url;
+  const textToCopy = `${title}\n${url}`;
+  navigator.clipboard.writeText(textToCopy).then(() => {
+    window.location.href = el.href;
+  }).catch(err => console.error('Failed to copy', err));
 }
 
-function windowResized() {
-  resizeCanvas(windowWidth, windowHeight);
+
+function copyArticleLink(event, articleId) {
+  event.preventDefault();
+  const url = `${window.location.origin}${window.location.pathname}#${articleId}`;
+  navigator.clipboard.writeText(url).then(() => {
+    console.log('Link copied:', url);
+  }).catch(err => console.error('Failed to copy link', err));
 }
 </script>
 </body>
 </html>
-

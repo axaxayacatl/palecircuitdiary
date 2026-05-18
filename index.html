@@ -22,7 +22,7 @@
   }
 
   canvas {
-    position: fixed;
+    position: absolute; /* scrolls with page */
     top: 0;
     left: 0;
     z-index: 0; /* behind articles */
@@ -38,7 +38,7 @@
     margin: 40px auto;
     width: 100%;
     max-width: 520px;
-    padding-bottom: 40px; /* ensure bottom spacing for scrolling */
+    padding-bottom: 40px; /* bottom spacing for scrolling */
   }
 
   .article {
@@ -156,11 +156,19 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.6.0/p5.min.js"></script>
 <script>
 let drops = [];
-function setup() { createCanvas(windowWidth, windowHeight); }
+
+function setup() { 
+  createCanvas(windowWidth, windowHeight); 
+  noLoop(); // don't redraw constantly
+}
+
 class Drop { 
   constructor(x,y){ 
     this.x=x; this.y=y; 
-    this.ripples=[]; this.numRipples=3; this.baseRadius=0; this.spacing=15; 
+    this.ripples=[]; 
+    this.numRipples=3; 
+    this.baseRadius=0; 
+    this.spacing=15; 
     for(let i=0;i<this.numRipples;i++) this.ripples.push(this.baseRadius-i*this.spacing); 
     this.speed=1.2; 
   } 
@@ -168,12 +176,28 @@ class Drop {
   show(){ noFill(); stroke(255,200); for(let r of this.ripples) if(r>0) ellipse(this.x,this.y,r*2); } 
   finished(){ return this.ripples[0]>160; } 
 }
+
 function draw(){ 
   background('#FFE4EC'); 
-  if(frameCount%60===0) drops.push(new Drop(random(width*0.1,width*0.9), random(height*0.1,height*0.9)));
-  for(let i=drops.length-1;i>=0;i--){ drops[i].update(); drops[i].show(); if(drops[i].finished()) drops.splice(i,1); }
+  for(let i=drops.length-1;i>=0;i--){
+    drops[i].update(); 
+    drops[i].show(); 
+    if(drops[i].finished()) drops.splice(i,1); 
+  }
+  if(drops.length === 0) noLoop(); // stop loop when no drops
 }
-function windowResized(){ resizeCanvas(windowWidth, windowHeight); }
+
+function windowResized(){ 
+  resizeCanvas(windowWidth, windowHeight); 
+  loop(); 
+}
+
+function addDrop() {
+  drops.push(new Drop(random(width*0.1,width*0.9), random(height*0.1,height*0.9)));
+  loop(); 
+}
+
+setInterval(addDrop, 1000);
 
 function copyArticleInfo(event, el) {
   event.preventDefault();

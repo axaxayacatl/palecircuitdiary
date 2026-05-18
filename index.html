@@ -1,1 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Elegant Raindrop Ripples</title>
+<style>
+  body {
+    margin: 0;
+    overflow: hidden;
+    background-color: #FFE4EC; /* soft pastel baby pink */
+  }
+  canvas { display: block; }
+</style>
+</head>
+<body>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.6.0/p5.min.js"></script>
+<script>
+let drops = [];
 
+function setup() {
+  createCanvas(windowWidth, windowHeight);
+}
+
+class Drop {
+  constructor(x, y) {
+    this.x = x;
+    this.y = y;
+    this.ripples = []; // array of concentric ripples
+    this.numRipples = 3; // number of concentric echoes
+    this.baseRadius = 0;
+    this.spacing = 15; // distance between concentric circles
+
+    for (let i = 0; i < this.numRipples; i++) {
+      this.ripples.push(this.baseRadius - i * this.spacing);
+    }
+    this.speed = 1.2;
+  }
+
+  update() {
+    for (let i = 0; i < this.ripples.length; i++) {
+      this.ripples[i] += this.speed;
+    }
+  }
+
+  show() {
+    noFill();
+    stroke(255); 
+    for (let r of this.ripples) {
+      if (r > 0) ellipse(this.x, this.y, r * 2);
+    }
+  }
+
+  finished() {
+    return this.ripples[0] > 160; 
+  }
+}
+
+function draw() {
+  background('#FFE4EC'); 
+  if (frameCount % 60 === 0) { 
+    let x = random(width * 0.1, width * 0.9);
+    let y = random(height * 0.1, height * 0.9);
+    drops.push(new Drop(x, y));
+  }
+
+  for (let i = drops.length - 1; i >= 0; i--) {
+    drops[i].update();
+    drops[i].show();
+    if (drops[i].finished()) {
+      drops.splice(i, 1);
+    }
+  }
+}
+
+function windowResized() {
+  resizeCanvas(windowWidth, windowHeight);
+}
+</script>
+</body>
+</html>

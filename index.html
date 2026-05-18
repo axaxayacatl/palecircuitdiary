@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title></title>
+<title>palecircuit diary</title>
 <link rel="icon" type="image/jpeg" href="6f71cff8c631d3de1539751cfe31518b.jpg">
 <style>
   body {
@@ -27,10 +27,10 @@ class Drop {
   constructor(x, y) {
     this.x = x;
     this.y = y;
-    this.ripples = []; // array of concentric ripples
-    this.numRipples = 3; // number of concentric echoes
+    this.ripples = []; 
+    this.numRipples = 3; 
     this.baseRadius = 0;
-    this.spacing = 15; // distance between concentric circles
+    this.spacing = 15; 
 
     for (let i = 0; i < this.numRipples; i++) {
       this.ripples.push(this.baseRadius - i * this.spacing);
@@ -80,3 +80,4 @@ function windowResized() {
 </script>
 </body>
 </html>
+

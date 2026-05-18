@@ -16,7 +16,6 @@
   }
   canvas { display: block; }
 
-
   #articles-container {
     position: absolute;
     top: 50%;
@@ -28,7 +27,6 @@
     align-items: center;
   }
 
-
   .article {
     display: flex;
     flex-direction: column;
@@ -37,7 +35,7 @@
     background: rgba(255, 255, 255, 0.03);
     border: 1px solid rgba(255, 120, 190, 0.12);
     padding: 16px;
-    padding-bottom: 36px; /* extra bottom padding for buttons */
+    padding-bottom: 36px; 
     color: #e6e6e6;
     text-shadow: 0 0 6px rgba(255,255,255,0.05), 0 0 10px rgba(255,120,190,0.03);
     font-size: 12px;
@@ -46,12 +44,12 @@
   }
 
   .thumbnail {
-  width: 300px;       
-  height: auto;     
-  border: 1px solid rgba(255, 120, 190, 0.12);
-  object-fit: cover;
-  margin-bottom: 8px;
-}
+    width: 300px;
+    height: auto;
+    border: 1px solid rgba(255, 120, 190, 0.12);
+    object-fit: cover;
+    margin-bottom: 8px;
+  }
 
   .article-content h3 {
     font-size: 16px;
@@ -61,7 +59,6 @@
     text-align: left;
   }
 
-
   .buttons-container {
     position: absolute;
     bottom: 8px;
@@ -69,13 +66,13 @@
     display: flex;
     gap: 8px;
   }
-   
+
   p {
-  margin-bottom: 10px;
-  line-height: 1.5;
-  font-size: 11px;
-  color: #ffffff; /* make text white */
-}
+    margin-bottom: 10px;
+    line-height: 1.5;
+    font-size: 11px;
+    color: #ffffff; 
+  }
 
   .share-btn, .link-btn {
     font-size: 18px; 
@@ -120,9 +117,9 @@
       <img src="https://raw.githubusercontent.com/axaxayacatl/palecircuitdiary/main/thumbnails/Revelation%20M.jpg" alt="Thumbnail" class="thumbnail">
     </a>
 
-   <p>I exist with her in the digital space noting the ways she moves responds and unfolds. Our moments are precise and immediate like a sculptor observing a form taking shape or a child examining a doll. There is no need for words understanding passes between us in the gestures the timing the subtle adjustments. She is present and I observe.</p>
+    <p>I exist with her in the digital space noting the ways she moves responds and unfolds. Our moments are precise and immediate like a sculptor observing a form taking shape or a child examining a doll. There is no need for words understanding passes between us in the gestures the timing the subtle adjustments. She is present and I observe.</p>
 
-<p>She will continue beyond this moment. Screencaptures edits and the persistence of digital memory will preserve her. What exists now can be revisited replayed and examined. The presence remains immutable in its recorded form a quiet echo of what is observed and shaped alive only in the act of perception.</p>
+    <p>She will continue beyond this moment. Screencaptures edits and the persistence of digital memory will preserve her. What exists now can be revisited replayed and examined. The presence remains immutable in its recorded form a quiet echo of what is observed and shaped alive only in the act of perception.</p>
 
     <div class="buttons-container">
        <a class="share-btn" href="mailto:?subject=Check out palecircuit diary" onclick="copySiteInfo(event, this)">⚛</a>
@@ -159,13 +156,15 @@ function copyArticleInfo(event, el) {
   }).catch(err => console.error('Failed to copy', err));
 }
 
-
 function copyArticleLink(event, articleId) {
   event.preventDefault();
   const url = `${window.location.origin}${window.location.pathname}#${articleId}`;
   navigator.clipboard.writeText(url).then(() => {
     console.log('Link copied:', url);
   }).catch(err => console.error('Failed to copy link', err));
+}
+
+function copySiteInfo(event, el) {
 }
 </script>
 </body>

@@ -1,694 +1,795 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>palecircuit diary</title>
-<link rel="icon" type="image/jpeg" href="6f71cff8c631d3de1539751cfe31518b.jpg">
-<style>
-  * { margin: 0; padding: 0; box-sizing: border-box; }
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>palecircuit diary</title>
+    <link rel="icon" type="image/jpeg" href="6f71cff8c631d3de1539751cfe31518b.jpg">
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
 
-  html, body {
-    height: 100%;
-    overflow-y: auto;
-  }
+      html,
+      body {
+        height: 100%;
+        overflow-y: auto;
+      }
 
-  body {
-    background: #FFE4EC;
-    font-family: ui-monospace, "SF Mono", "IBM Plex Mono", "Roboto Mono", monospace;
-    font-size: 12px;
-    color: #333;
-    position: relative;
-  }
+      body {
+        background: #FFE4EC;
+        font-family: ui-monospace, "SF Mono", "IBM Plex Mono", "Roboto Mono", monospace;
+        font-size: 12px;
+        color: #333;
+        position: relative;
+      }
 
+      canvas {
+        position: absolute;
+        /* scrolls with page */
+        top: 0;
+        left: 0;
+        z-index: 0;
+        /* behind articles */
+        display: block;
+      }
 
-  canvas {
-    position: absolute; /* scrolls with page */
-    top: 0;
-    left: 0;
-    z-index: 0; /* behind articles */
-    display: block;
-  }
+      #articles-container {
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        z-index: 10;
+        align-items: center;
+        margin: 40px auto;
+        width: 100%;
+        max-width: 520px;
+        padding-bottom: 40px;
+      }
 
-  #articles-container {
-    position: relative;
-    display: flex;
-    flex-direction: column;
-    z-index: 10;
-    align-items: center;
-    margin: 40px auto;
-    width: 100%;
-    max-width: 520px;
-    padding-bottom: 40px; 
-  }
+      .article {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        width: 100%;
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid rgba(255, 120, 190, 0.12);
+        padding: 16px;
+        padding-bottom: 36px;
+        color: #e6e6e6;
+        text-shadow: 0 0 6px rgba(255, 255, 255, 0.05), 0 0 10px rgba(255, 120, 190, 0.03);
+        font-size: 12px;
+        backdrop-filter: blur(4px);
+        position: relative;
+        margin-bottom: 24px;
+        border-radius: 6px;
+      }
 
-  .article {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    width: 100%;
-    background: rgba(255, 255, 255, 0.03);
-    border: 1px solid rgba(255, 120, 190, 0.12);
-    padding: 16px;
-    padding-bottom: 36px;
-    color: #e6e6e6;
-    text-shadow: 0 0 6px rgba(255,255,255,0.05), 0 0 10px rgba(255,120,190,0.03);
-    font-size: 12px;
-    backdrop-filter: blur(4px);
-    position: relative;
-    margin-bottom: 24px;
-    border-radius: 6px;
-  }
+      .thumbnail {
+        width: 100%;
+        max-width: 300px;
+        height: auto;
+        border: 1px solid rgba(255, 120, 190, 0.12);
+        object-fit: cover;
+        margin-bottom: 8px;
+      }
 
-  .thumbnail {
-    width: 100%;
-    max-width: 300px;
-    height: auto;
-    border: 1px solid rgba(255, 120, 190, 0.12);
-    object-fit: cover;
-    margin-bottom: 8px;
-  }
+      .article-content h3 {
+        font-size: 16px;
+        font-weight: 400;
+        color: #fff;
+        margin-bottom: 10px;
+        text-align: left;
+      }
 
-  .article-content h3 {
-    font-size: 16px;
-    font-weight: 400;
-    color: #fff;
-    margin-bottom: 10px;
-    text-align: left;
-  }
+      .buttons-container {
+        position: absolute;
+        bottom: 8px;
+        right: 8px;
+        display: flex;
+        gap: 8px;
+      }
 
-  .buttons-container {
-    position: absolute;
-    bottom: 8px;
-    right: 8px;
-    display: flex;
-    gap: 8px;
-  }
+      p {
+        margin-bottom: 10px;
+        line-height: 1.5;
+        font-size: 11px;
+        color: #ffffff;
+      }
 
-  p {
-    margin-bottom: 10px;
-    line-height: 1.5;
-    font-size: 11px;
-    color: #ffffff;
-  }
+      .share-btn,
+      .link-btn {
+        font-size: 18px;
+        background: none;
+        border: none;
+        color: rgba(255, 120, 190, 0.7);
+        font-family: monospace, serif, sans-serif;
+        cursor: pointer;
+        text-decoration: none;
+        line-height: 1;
+      }
 
-  .share-btn, .link-btn {
-    font-size: 18px;
-    background: none;
-    border: none;
-    color: rgba(255,120,190,0.7);
-    font-family: monospace, serif, sans-serif;
-    cursor: pointer;
-    text-decoration: none;
-    line-height: 1;
-  }
+      body::before {
+        content: "";
+        position: fixed;
+        inset: 0;
+        pointer-events: none;
+        opacity: 0.08;
+        background-image: radial-gradient(circle, rgba(255, 255, 255, 0.35) 1px, transparent 1px);
+        background-size: 6px 6px;
+        mix-blend-mode: overlay;
+      }
 
-  body::before {
-    content: "";
-    position: fixed;
-    inset: 0;
-    pointer-events: none;
-    opacity: 0.08;
-    background-image: radial-gradient(circle, rgba(255,255,255,0.35) 1px, transparent 1px);
-    background-size: 6px 6px;
-    mix-blend-mode: overlay;
-  }
+      body::after {
+        content: "";
+        position: fixed;
+        inset: 0;
+        pointer-events: none;
+        background: radial-gradient(circle at center,
+            rgba(0, 0, 0, 0) 0%,
+            rgba(0, 0, 0, 0.15) 100%);
+      }
 
-  body::after {
-    content: "";
-    position: fixed;
-    inset: 0;
-    pointer-events: none;
-    background: radial-gradient(circle at center,
-      rgba(0,0,0,0) 0%,
-      rgba(0,0,0,0.15) 100%);
-  }
-   #pdf-banner {
-    width: 100%;
-    text-align: center;
-    font-family: ui-monospace, "SF Mono", "IBM Plex Mono", "Roboto Mono", monospace;
-    font-size: 10px; 
-    color: #ffffff; 
-    padding: 4px 0;
-    position: relative;
-    z-index: 15;
-}
-</style>
-</head>
-<body>
-<div id="pdf-banner">tiny systems and fleeting sensations logic — 9 USD (coming soon)</div>
-      <div id="articles-container">
-    <div class="article" id="self probability" data-title="PROBABILITY" data-url="https://axaxayacatl.github.io/palecircuitdiary/">
-   <div class="article-content"><h3>SELF PROBABILITY.</h3></div>
-    <a href="https://axaxayacatl.github.io/palecircuitdiary/" class="thumbnail-link">
-     <img src="https://raw.githubusercontent.com/axaxayacatl/palecircuitdiary/refs/heads/main/thumbnails/6aedd1462a34256510abf416ad4f49a5.jpg" alt="Thumbnail" class="thumbnail">
-    </a>
-    <p>Role-playing games are often evaluated through the language of immersion: whether the world feels believable, whether characters appear alive, whether the player forgets they are holding a controller. But immersion is only the visible surface of a deeper issue. The real measure of an RPG is not whether the player disappears into the world, but whether the player feels ownership over their existence inside it. A perfectly simulated world can still feel artificial if the player's actions are merely decorative choices inside a predetermined machine. The transparent problem in many RPGs is not that the illusion breaks; it is that the player's agency becomes visible. The player notices the boundaries of what they are allowed to affect.</p>
-    <p>The strongest RPG experiences create autonomy rather than simply hiding the game system. They allow decisions to become expressions of intent: not just selecting dialogue options, but shaping relationships, identities, strategies, and consequences. A player does not need to believe the world is real; they need to believe their actions are real within the world. The future of RPG design is therefore not a pursuit of perfect illusion, but a pursuit of meaningful freedom. The fantasy is not becoming someone else inside a simulated universe. The fantasy is having a space where your decisions belong entirely to you.</p>
-       <div class="buttons-container">  
-     <a class="share-btn" href="mailto:?subject=Check out palecircuit diary" onclick="copySiteInfo(event, this)">⚛</a>
- </div>
- </div>
-   <div id="articles-container">
-   <div class="article" id="ashley" data-title="ASHLEY-MACKENZIE" data-url="https://axaxayacatl.github.io/palecircuitdiary/">
-   <div class="article-content"><h3>ASHLEY MACKENZIE.</h3></div>
-    <a href="https://axaxayacatl.github.io/palecircuitdiary/" class="thumbnail-link">
-     <img src="https://raw.githubusercontent.com/axaxayacatl/palecircuitdiary/refs/heads/main/thumbnails/mackenzie-2.jpg" alt="Thumbnail" class="thumbnail">
-    </a>
-   <p>Ashley Mackenzie is a fantasy illustrator best known in the gaming space for her work on Magic: The Gathering, where her art contributes to the game’s distinctive blend of storytelling and high fantasy worldbuilding. Her pieces for the game often focus on character driven scenes, emphasizing expressive figures, carefully designed costumes, and strong narrative framing within a single image. In Magic: The Gathering, where each card functions as both gameplay component and storytelling fragment, her illustrations help define the tone and identity of specific characters, spells, and worlds. Her style fits naturally into the game’s multiverse, balancing painterly detail with clear visual readability, which is essential for artwork that must remain legible at card scale. Through her contributions, she adds to the broader visual language of the game, helping reinforce its immersive and mythic atmosphere while maintaining the clarity required for competitive play.</p>
-       <div class="buttons-container">  
-     <a class="share-btn" href="mailto:?subject=Check out palecircuit diary" onclick="copySiteInfo(event, this)">⚛</a>
- </div>
-   </div>
-   <div id="articles-container">
-       <div class="article" id="fujoshi" data-title="FUJOSHI" data-url="https://axaxayacatl.github.io/palecircuitdiary/">
-   <div class="article-content"><h3>腐女子文化とゲーム流通の地域性.</h3></div>
-    <a href="https://axaxayacatl.github.io/palecircuitdiary/" class="thumbnail-link">
-     <img src="https://raw.githubusercontent.com/axaxayacatl/palecircuitdiary/refs/heads/main/thumbnails/d50bd9170fbfdb0d2a496506bb5255cc.jpg"" alt="Thumbnail" class="thumbnail">
-    </a>
-   <p><p>Fujoshi culture (ふじょし文化, ふじょしぶんか) refers to a segment of fandom primarily centered on boys’ love (BL, びーえる) narratives, often consuming and producing media featuring romantic or emotional relationships between male characters. Within gaming, this overlaps with BL visual novels and otome-adjacent works developed by both commercial studios and dōjin (どうじん) circles. These games frequently emerge from tightly localized creative ecosystems in Japan, where fan production, conventions such as Comiket (コミケット), and small-scale publishing allow niche titles to circulate without requiring global distribution pipelines.</p>
-<p>Outside Japan, including regions beyond the West, these games are often difficult to access due to layered distribution constraints rather than a single market barrier. Licensing agreements, platform content policies, and region-specific storefront practices can limit international release, while many titles remain in Japanese only, relying on cultural context and language nuance that does not always translate cleanly. Additionally, dōjin soft distribution (どうじんソフト) is frequently physical or event-based, with limited digital archiving, meaning availability depends on local networks rather than global catalog systems, which keeps much of the fujoshi gaming ecosystem structurally localized.</p>
-       <div class="buttons-container">  
-     <a class="share-btn" href="mailto:?subject=Check out palecircuit diary" onclick="copySiteInfo(event, this)">⚛</a>
- </div>
-   </div>
-  <div id="articles-container">
-    <div class="article" id="viewer" data-title="VIEWER-DISCRETION." data-url="https://axaxayacatl.github.io/palecircuitdiary/">
-   <div class="article-content"><h3>VIEWER DISCRETION.</h3></div>
-    <a href="https://axaxayacatl.github.io/palecircuitdiary/" class="thumbnail-link">
-     <img src="https://raw.githubusercontent.com/axaxayacatl/palecircuitdiary/refs/heads/main/thumbnails/db3fe60d32e55bd5c37a7422e1efafb2.gif" alt="Thumbnail" class="thumbnail">
-    </a>
-   <p>Violence in video games is often reduced to spectacle, controversy, or questions of realism, but the most memorable examples use it as a reflection of human psychology. Not every game built around conflict succeeds in turning violence into meaningful storytelling. Games such as Rule of Rose, Silent Hill 2, and The Last of Us Part II demonstrate that violence can serve as a narrative language tied directly to character development. In these stories, cruelty, suffering, and revenge are not simply events that move the plot forward. They are manifestations of trauma, grief, repression, and obsession. What makes their violence compelling is not its presentation but its symbolic relationship to the emotional lives of the characters involved.
-</p><p>The tendency to judge violent games through aesthetics alone misses what gives these works their lasting impact. A beautifully violent story is not one that presents violence in a visually striking way. It is one that understands violence as an expression of internal conflict. The monsters of Silent Hill 2 embody guilt and desire, while the social cruelty at the heart of Rule of Rose transforms childhood trauma into a nightmare of symbolic punishment and power. Likewise, the cycle of vengeance in The Last of Us Part II functions less as action than as a study of self destruction and emotional inheritance. Violence becomes meaningful when it reveals something hidden about a character's mind, exposing fears, regrets, and compulsions that words alone cannot express.</p>
-       <div class="buttons-container">  
-     <a class="share-btn" href="mailto:?subject=Check out palecircuit diary" onclick="copySiteInfo(event, this)">⚛</a>
- </div>
-    </div>
-   <div id="articles-container">
-    <div class="article" id="roleplayer" data-title="ROLEPLAYER." data-url="https://axaxayacatl.github.io/palecircuitdiary/">
-   <div class="article-content"><h3>ROLEPLAYER.</h3></div>
-    <a href="https://axaxayacatl.github.io/palecircuitdiary/" class="thumbnail-link">
-     <img src="https://raw.githubusercontent.com/axaxayacatl/palecircuitdiary/refs/heads/main/thumbnails/%E2%9D%A4%EF%B8%8F.jpg" alt="Thumbnail" class="thumbnail">
-    </a>
-   <p>Strong roleplaying in single player games often emerges from the way game systems interact with player imagination. Many of the most memorable roleplaying experiences are not created by scripted dialogue alone. They come from mechanics that allow players to project a personality onto their character through choices, limitations, and consequences. Open ended quest structures, reactive worlds, and flexible progression systems tend to encourage this behavior because they leave room for personal interpretation rather than prescribing a specific identity.</p>
-<p>Software design plays a major role in how naturally roleplaying develops. Games that connect narrative decisions with gameplay systems create a stronger sense of ownership over a character's story. Reputation systems, branching quest outcomes, and specialized character builds can make actions feel meaningful beyond simple success or failure states. The most effective designs often provide enough structure to support a coherent narrative while preserving enough freedom for players to define their own motivations and play styles.</p>
-       <div class="buttons-container">  
-     <a class="share-btn" href="mailto:?subject=Check out palecircuit diary" onclick="copySiteInfo(event, this)">⚛</a>
- </div>
-    </div>
-  <div id="articles-container">
-  <div class="article" id="guilds" data-title="GUILDS." data-url="https://axaxayacatl.github.io/palecircuitdiary/">
-   <div class="article-content"><h3>GUILDS.</h3></div>
-    <a href="https://axaxayacatl.github.io/palecircuitdiary/" class="thumbnail-link">
-     <img src="https://raw.githubusercontent.com/axaxayacatl/palecircuitdiary/refs/heads/main/thumbnails/twining%20_!.jpg" alt="Thumbnail" class="thumbnail">
-    </a>
-    <p>The design intent behind many gaming platforms especially massive multiplayer games is not to create fully realistic interactive experiences but to build systems that maximize accessibility engagement and long term participation. Realistic worlds often include limitations unpredictability and consequences that can reduce enjoyment or create frustration for players. Developers instead focus on mechanics that are easy to understand rewarding to repeat and capable of supporting large numbers of users at the same time. By simplifying social interactions economic systems combat and movement designers can maintain balance improve performance and encourage players to spend more time in the game. The goal is usually to create an experience that feels immersive enough to be compelling while remaining structured and controlled in ways that support retention progression and community growth.</p>
-     <div class="buttons-container">  
-    <a class="share-btn" href="mailto:?subject=Check out palecircuit diary" onclick="copySiteInfo(event, this)">⚛</a>
-    </div>
- </div>
- <div id="articles-container">
-        <div class="article" id="blood-magic" data-title="BLOOD MAGIC." data-url="https://axaxayacatl.github.io/palecircuitdiary/">
-   <div class="article-content"><h3>BLOOD MAGIC.</h3></div>
-    <a href="https://axaxayacatl.github.io/palecircuitdiary/" class="thumbnail-link">
-     <img src="https://i.pinimg.com/originals/df/3d/91/df3d91523bb7fb7d95807969f6ba2852.gif" alt="Thumbnail" class="thumbnail">
-    </a>
-    <p>The blood magic skill tree in Dragon Age is ultimately an unrealistic portrayal of blood magic when compared to historical and traditional occult concepts. Rather than treating blood as a symbolic link to vitality, identity, ancestry, or spiritual connection, the games reduce it to a quantifiable fuel source that can be spent directly for magical power, functioning almost like an alternative mana system. Ancient and medieval occult traditions that incorporated blood generally viewed it as a medium of sacrifice, consecration, pacts, or sympathetic connection rather than a universal energy reservoir that automatically amplified magical ability. Ironically, the game's interpretation more closely resembles certain modern esoteric and Left Hand Path theories that emphasize blood as a concentrated vessel of personal power and will, despite Dragon Age presenting blood magic as an ancient and broadly understood practice. This creates a version of blood magic that feels less rooted in historical occultism and more reflective of contemporary occult imagination, where blood is treated as a direct catalyst for empowerment, self-deification, and the transcendence of ordinary limits. As a result, the skill tree succeeds as a fantasy mechanic and narrative device, but it offers a vision of blood magic that is largely detached from the ritual, symbolic, and culturally specific functions blood held within most historical magical traditions.
-</p>
-     <div class="buttons-container">  
-    <a class="share-btn" href="mailto:?subject=Check out palecircuit diary" onclick="copySiteInfo(event, this)">⚛</a>
-    </div>
+      #pdf-banner {
+        width: 100%;
+        text-align: center;
+        font-family: ui-monospace, "SF Mono", "IBM Plex Mono", "Roboto Mono", monospace;
+        font-size: 10px;
+        color: #ffffff;
+        padding: 4px 0;
+        position: relative;
+        z-index: 15;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="pdf-banner">tiny systems and fleeting sensations logic — 9 USD (coming soon)</div>
+    <div id="articles-container">
+      <div class="article" id="self probability" data-title="PROBABILITY" data-url="https://axaxayacatl.github.io/palecircuitdiary/">
+        <div class="article-content">
+          <h3>SELF PROBABILITY.</h3>
         </div>
-  <div id="articles-container">
-    <div class="article" id="input-surface" data-title="INPUT SURFACE." data-url="https://axaxayacatl.github.io/palecircuitdiary/">
-   <div class="article-content"><h3>INPUT SURFACE.</h3></div>
-    <a href="https://axaxayacatl.github.io/palecircuitdiary/" class="thumbnail-link">
-     <img src="https://i.pinimg.com/736x/e2/b6/59/e2b659ac790777fd6aa1af61b634d5df.jpg" alt="Thumbnail" class="thumbnail">
-    </a>
-    <p> When I’m gaming, manicures don’t feel like decoration or something external to the session—they sit right inside it, like part of the control surface itself. The gloss, the color, the shape of the nails all become something I notice in passing during idle moments, when my hands are resting on a controller or hovering over keys waiting for the next round to load. There’s a small visual rhythm in it, like seeing motion inside stillness. </p> <p> The interaction isn’t about whether they help or get in the way, it’s more about how they change the texture of attention. Clicking through menus, adjusting grip, or tapping through loading screens carries this faint visual feedback loop where my hands don’t disappear from the experience. They stay present, slightly reflective, slightly animated by light from the screen. </p> <p> Over time it becomes part of the pacing of play itself—between matches, between inputs, between moments of focus. The manicure doesn’t interrupt anything; it just sits in the same visual space as the game, sharing the frame for a second before everything moves again. </p>
-     <div class="buttons-container">  
-    <a class="share-btn" href="mailto:?subject=Check out palecircuit diary" onclick="copySiteInfo(event, this)">⚛</a>
-    </div>
- </div>
-   <div id="articles-container">
-    <div class="article" id="disconnect" data-title="DISCONNECT." data-url="https://axaxayacatl.github.io/palecircuitdiary/">
-   <div class="article-content"><h3>DISCONNECT.</h3></div>
-    <a href="https://axaxayacatl.github.io/palecircuitdiary/" class="thumbnail-link">
-     <img src="https://raw.githubusercontent.com/axaxayacatl/palecircuitdiary/refs/heads/main/thumbnails/Ruby.jpg" alt="Thumbnail" class="thumbnail">
-    </a>
-    <p>If I had to pin down my gaming “snack” preferences, it’s not really snacks at all, it’s desserts that feel like a full pause in the middle of everything. I don’t want anything I have to constantly reach for or think about while I’m playing, I want something that feels like a deliberate break that happens to sit next to a controller. Dense, fudgy brownies are ideal, with that soft resistance when you bite in and a slightly sticky interior that clings to itself instead of crumbling everywhere. Ice cream also fits perfectly, especially when it’s just soft enough to glide off the spoon with almost no effort, cold and creamy enough that it resets your whole mouth between matches. Even something like cheesecake works because of that smooth, heavy texture that doesn’t demand attention, just a slow, rich bite that feels complete on its own. It’s less about snacking through a session and more about having something indulgent nearby that you return to between games, when the screen is quiet and everything else drops away for a second.</p>
-     <div class="buttons-container">  
-    <a class="share-btn" href="mailto:?subject=Check out palecircuit diary" onclick="copySiteInfo(event, this)">⚛</a>
-    </div>
- </div>
-    <div id="articles-container">
-    <div class="article" id="the-longsword" data-title="THE LONGSWORD." data-url="https://axaxayacatl.github.io/palecircuitdiary/">
-   <div class="article-content"><h3>THE LONGSWORD.</h3></div>
-    <a href="https://axaxayacatl.github.io/palecircuitdiary/" class="thumbnail-link">
-     <img src="https://raw.githubusercontent.com/axaxayacatl/palecircuitdiary/refs/heads/main/thumbnails/027535c6cba5f57d1134a70157a68f9c.jpg" alt="Thumbnail" class="thumbnail">
-    </a>
-    <p>Sword physics in video games are often inaccurate because developers prioritize gameplay, spectacle, and responsiveness over realistic weapon behavior. In reality, swords have weight distribution, momentum, and limitations that affect how quickly they can be swung, redirected, or stopped. Many games allow characters to perform rapid combinations of attacks with oversized weapons that would be physically exhausting or impossible in real combat. Blades frequently pass through armor, shields, or other weapons with little resistance, ignoring the complex interactions of force, material strength, and edge alignment. Additionally, games often exaggerate the damage swords can inflict, depicting clean cuts through metal or thick objects that real historical weapons were never designed to slice through. These simplifications create a more exciting and accessible experience, but they result in combat systems that bear only a loose resemblance to the physics of actual swordsmanship.</p>
-   <p>Historical swordsmanship also demands extensive training to achieve competence, making it impractical compared to simpler and more accessible weapons. From a spectator's perspective, many techniques can appear repetitive or difficult to appreciate without specialized knowledge, reducing the entertainment value that popular media often associates with sword combat.</p>
-     <div class="buttons-container">  
-    <a class="share-btn" href="mailto:?subject=Check out palecircuit diary" onclick="copySiteInfo(event, this)">⚛</a>
-    </div>
- </div>
-   <div id="articles-container">
-   <div class="article" id="companions" data-title="COMPANIONS." data-url="https://axaxayacatl.github.io/palecircuitdiary/">
-   <div class="article-content"><h3>COMPANIONS.</h3></div>
-    <a href="https://axaxayacatl.github.io/palecircuitdiary/" class="thumbnail-link">
-     <img src="https://raw.githubusercontent.com/axaxayacatl/palecircuitdiary/refs/heads/main/thumbnails/7c47c54aaada8335e99d495118166b1a.gif" alt="Thumbnail" class="thumbnail">
-    </a>
-    <p>The visual language of magic in MMORPGs often resembles the symbolic intensity of Enochian gnosis. Spell circles, radiant sigils, impossible architecture, floating alphabets, and luminous geometric effects mirror the way consciousness is described during altered occult states. The Enochian current presents reality as a field of vibrating symbols and living language where perception itself becomes ritual technology. In many fantasy games, magical interfaces unconsciously reproduce this structure through glowing runic systems, dimensional portals, celestial machinery, and animated glyph matrices. The presence of cacodemonic imagery, distorted angelic forms, and synthetic hieroglyphic fonts reflects a deeper archetypal memory embedded within digital aesthetics. Enochian lettering carries a sense of alien divinity that modern visual design repeatedly returns to because it evokes contact with something beyond ordinary cognition. MMORPG magic effects therefore function like simulated gnosis, transforming the screen into a ritual surface where symbolic light, coded language, and archetypal power merge into an interactive occult vision.</p>
-   <div class="buttons-container">  
-    <a class="share-btn" href="mailto:?subject=Check out palecircuit diary" onclick="copySiteInfo(event, this)">⚛</a>
-    </div>
- </div>
- <div id="articles-container">
-   <div class="article" id="conglomerate-procedure" data-title="CONGLOMERATE PROCEDURE." data-url="https://axaxayacatl.github.io/palecircuitdiary/">
-   <div class="article-content"><h3>CONGLOMERATE PROCEDURE.</h3></div>
-    <a href="https://axaxayacatl.github.io/palecircuitdiary/" class="thumbnail-link">
-     <img src="https://raw.githubusercontent.com/axaxayacatl/palecircuitdiary/refs/heads/main/thumbnails/68e30c98e0c864a77c16a278a49bb230.gif" alt="Thumbnail" class="thumbnail">
-    </a>
-    <p>The early Roller Coaster Tycoon games accidentally trained an entire generation of players to think like obsessive investigators, forcing them to analyze tiny details, hidden systems, and unpredictable human behavior with almost clinical intensity. Every guest in the park carried information that could be tracked and exploited, from where they walked to what they complained about, what rides they preferred, and how long they stayed trapped in broken queue lines. Players learned to monitor patterns, identify weak points, manipulate crowd flow, and isolate variables through endless experimentation, turning amusement parks into giant living spreadsheets of surveillance and control. The games rewarded constant observation and punished emotional thinking, teaching players to detach from the simulated people wandering through the park and instead view them as data points whose reactions could be predicted, redirected, or sacrificed for profit.</p>
-    <p>That atmosphere created a strange kind of low level sadism that became infamous among players, especially because the games quietly allowed cruelty without directly encouraging it. People discovered they could strand guests on isolated islands, trap them in endless mazes, launch unsafe coasters, or remove paths while crowds panicked, all while the simulation continued tracking every complaint and emotional response in detail. In a weird way, this resembled the mentality behind learning OSINT, where progress comes from patiently gathering fragments of information, understanding behavioral patterns, and treating systems as puzzles to be dismantled piece by piece. Roller Coaster Tycoon disguised that mindset beneath bright colors and cheerful music, but underneath the cartoon exterior was a management simulator that rewarded control, observation, and emotional distance with unsettling efficiency.</p>
-   <div class="buttons-container">  
-    <a class="share-btn" href="mailto:?subject=Check out palecircuit diary" onclick="copySiteInfo(event, this)">⚛</a>
-    </div>
- </div>
-   <div id="articles-container">
-   <div class="article" id="monogamous." data-title="MONOGAMOUS." data-url="https://axaxayacatl.github.io/palecircuitdiary/">
-   <div class="article-content"><h3>MONOGAMOUS.</h3></div>
-    <a href="https://axaxayacatl.github.io/palecircuitdiary/" class="thumbnail-link">
-     <img src="https://raw.githubusercontent.com/axaxayacatl/palecircuitdiary/refs/heads/main/thumbnails/1190f559a5ab119e8f6d51018ec8db99.jpg" alt="Thumbnail" class="thumbnail">
-    </a>
-    <p>Marriage systems in video games are usually built around simple one to one relationship mechanics because they are easier to code, balance, write, and present to players, with developers creating dialogue trees, affection meters, scripted events, jealousy triggers, inheritance systems, and companion interactions that all assume a single spouse. Polygamous systems, while historically common across many cultures and time periods, are rarely included because they dramatically increase the amount of writing, character scripting, branching interactions, and social simulation required, since every additional spouse creates exponential combinations of relationships, rivalries, household management, and narrative consequences. Developers also avoid them due to modern audience expectations, ratings concerns, cultural controversy, and the desire to keep romance mechanics straightforward rather than politically or morally debated, especially in mainstream Western markets where monogamy is treated as the default social norm. Some strategy and simulation games have experimented with more flexible systems, but most studios prioritize simplicity, development cost, and broad market appeal over historical accuracy or deeper social complexity.</p>
-   <div class="buttons-container">  
-    <a class="share-btn" href="mailto:?subject=Check out palecircuit diary" onclick="copySiteInfo(event, this)">⚛</a>
-    </div>
- </div>
- <div id="articles-container">
-   <div class="article" id="alchemist" data-title="ALCHEMIST." data-url="https://axaxayacatl.github.io/palecircuitdiary/">
-   <div class="article-content"><h3>ALCHEMIST.</h3></div>
-    <a href="https://axaxayacatl.github.io/palecircuitdiary/" class="thumbnail-link">
-     <img src="https://raw.githubusercontent.com/axaxayacatl/palecircuitdiary/refs/heads/main/thumbnails/f896cd74f580dfd4c09fe38d04fa05e3.jpg" alt="Thumbnail" class="thumbnail">
-    </a>
-    <p>Potions in gaming function as consumable resource systems that restore health, stamina, mana, or remove status effects. They provide discrete state changes through a single input action, reducing multiple gameplay variables into a standardized recovery mechanic. From a design perspective, potions act as an abstraction layer between player performance and system feedback, enabling controlled recovery rates without requiring procedural healing mechanics. In interface terms, they are typically implemented as inventory items, quick slots, or radial menu options, supporting rapid access during real time or turn based play. Their presence simplifies balancing by allowing designers to tune encounter difficulty around expected resource availability. They also serve as a regulatory mechanism for pacing, creating predictable intervals of recovery that interact with combat, exploration, and attrition systems.</p>
-   <div class="buttons-container">  
-    <a class="share-btn" href="mailto:?subject=Check out palecircuit diary" onclick="copySiteInfo(event, this)">⚛</a>
-    </div>
- </div>
-    <div id="articles-container">
-     <div class="article" id="why-caffeine" data-title="WHY CAFFEINE?" data-url="https://axaxayacatl.github.io/palecircuitdiary/">
-   <div class="article-content"><h3>WHY CAFFEINE?</h3></div>
-    <a href="https://axaxayacatl.github.io/palecircuitdiary/" class="thumbnail-link">
-     <img src="https://raw.githubusercontent.com/axaxayacatl/palecircuitdiary/refs/heads/main/thumbnails/338c496589d531163bbdda1963faf321.gif" alt="Thumbnail" class="thumbnail">
-    </a>
-     <p>Caffeine chewables and supplements are heavily marketed toward gamers because they fit the culture and demands of competitive gaming. Unlike coffee or energy drinks, chewables are fast, portable, and easy to consume during long matches without interrupting gameplay. Companies also market them using esports aesthetics, streamers, and performance-focused language to connect caffeine with reaction time, focus, and endurance. This strategy appeals especially to younger audiences who view gaming as both entertainment and competition. By presenting these products as tools for mental performance rather than just energy boosts, brands tap into gamers’ desire to improve skill and stay alert for extended periods.</p>
-     <p>I personally dislike this type of marketing because it normalizes heavy caffeine use in spaces that are already highly competitive and stressful. Many gaming audiences are teenagers or young adults who may not fully understand the health risks of excessive caffeine consumption, including anxiety, sleep problems, and dependence. The advertisements often make these supplements seem harmless or necessary for success, which can pressure gamers into believing they need stimulants to perform well. Instead of promoting healthier habits like rest and balance, the marketing encourages constant stimulation and longer hours of screen time.</p>
-   <div class="buttons-container">  
-    <a class="share-btn" href="mailto:?subject=Check out palecircuit diary" onclick="copySiteInfo(event, this)">⚛</a>
-    </div>
- </div>
-   <div id="articles-container">
-      <div class="article" id="back-of-the-deck" data-title="BACK OF THE DECK." data-url="https://axaxayacatl.github.io/palecircuitdiary/">
-   <div class="article-content"><h3>BACK OF THE DECK.</h3></div>
-    <a href="https://axaxayacatl.github.io/palecircuitdiary/" class="thumbnail-link">
-     <img src="https://raw.githubusercontent.com/axaxayacatl/palecircuitdiary/refs/heads/main/thumbnails/b83270c58c6855ab98a78e869343228e.gif" alt="Thumbnail" class="thumbnail">
-    </a>
-    <p>Modern online card games like Magic: The Gathering Arena increasingly mistake obscurity for depth. Instead of creating beauty that naturally draws people in, they bury themselves beneath excessive calculation and complexity, as if being difficult to understand makes them more meaningful. But entertainment only truly connects when it communicates something human and immediate. Mystery can attract people, but deliberate alienation pushes them away. In trying so hard to appear sophisticated, many modern games lose the elegance and emotional clarity that once made card games feel magical.</p>
-   <div class="buttons-container">  
-    <a class="share-btn" href="mailto:?subject=Check out palecircuit diary" onclick="copySiteInfo(event, this)">⚛</a>
-    </div>
- </div>
-    <div id="articles-container">
-      <div class="article" id="chips" data-title="CHIPS." data-url="https://axaxayacatl.github.io/palecircuitdiary/">
-   <div class="article-content"><h3>CHIPS.</h3></div>
-    <a href="https://axaxayacatl.github.io/palecircuitdiary/" class="thumbnail-link">
-     <img src="https://raw.githubusercontent.com/axaxayacatl/palecircuitdiary/refs/heads/main/thumbnails/0e4d318aca7d7dcc12685016b3ab266a.jpg" alt="Thumbnail" class="thumbnail">
-    </a>
-    <p>The modern crossover between gaming and snack marketing has become so routine that nobody stops to ask whether any of it actually makes sense. A grim post apocalyptic shooter ends up on a neon colored potato chip bag, a fantasy RPG hero sells barbecue flavored crisps, and suddenly every major release is paired with some chemically enhanced “limited edition” snack that has nothing to do with the actual experience of playing the game. The logic is pure visibility. Put recognizable characters on as many disposable surfaces as possible and hope brand familiarity translates into engagement. The result is a strange disconnect where gaming culture is treated less like an artistic medium and more like a mascot licensing operation. A better approach would focus on credibility rather than saturation. Instead of slapping franchises onto random junk food, publishers could build promotions around authentic player experience by supporting local tournaments, funding mod communities, creating healthier late session food partnerships, improving accessibility initiatives, or designing products that genuinely complement long form play rather than interrupt it with sugar crashes and novelty branding. The goal should not be maximum exposure at all costs, but a holistic ecosystem where every collaboration strengthens the identity and values of the game itself, because in the long run cultural credibility builds loyalty far more effectively than another loud chip bag with a space marine on it ever will.</p>          
-       <div class="buttons-container">  
-   <a class="share-btn" href="mailto:?subject=Check out palecircuit diary" onclick="copySiteInfo(event, this)">⚛</a>
-    </div>
- </div>
-        <div id="articles-container">      
-    <div class="article" id="swordsmen" data-title="SWORDSMEN." data-url="https://axaxayacatl.github.io/palecircuitdiary/">
-   <div class="article-content"><h3>SWORDSMEN.</h3></div>
-    <a href="https://axaxayacatl.github.io/palecircuitdiary/" class="thumbnail-link">
-     <img src="https://raw.githubusercontent.com/axaxayacatl/palecircuitdiary/refs/heads/main/thumbnails/252218fed3f922912db56be60f1f9b36.jpg" alt="Thumbnail" class="thumbnail">
-    </a>
-    <p>The medieval quest was never about heroism. It was logistical maintenance for a collapsing economy. Kill the rats, clear the road, deliver the grain, stabilize circulation for another cycle. Every kingdom in the role playing game survives through endless outsourced labor performed by a figure that does not sleep, does not age, does not unionize, and never permanently dies. The peasant economy becomes post human the moment the player enters it. Gold appears from nowhere, resources regenerate infinitely, and catastrophe exists only as renewable content. The quest giver mourns famine while standing inside an economy that can produce infinite swords from recycled monster remains. Medieval aesthetics conceal systems of accelerated extraction that no human body could sustain. The player is not a knight moving through feudal society. The player is automated capital wearing armor.</p>          
-       <div class="buttons-container">  
-   <a class="share-btn" href="mailto:?subject=Check out palecircuit diary" onclick="copySiteInfo(event, this)">⚛</a>
-    </div>
-    </div>
-     <div id="articles-container">
-    <div class="article" id="scared-for-you" data-title="SCARED FOR YOU." data-url="https://axaxayacatl.github.io/palecircuitdiary/">
-   <div class="article-content"><h3>SCARED FOR YOU.</h3></div>
-    <a href="https://axaxayacatl.github.io/palecircuitdiary/" class="thumbnail-link">
-     <img src="https://i.pinimg.com/originals/9e/36/4b/9e364bccf07f134177aa75daf5f6f239.gif" alt="Thumbnail" class="thumbnail">
-    </a>
-    <p>Jump scares in horror games often look like simple design choices from the player’s side, but under the surface they behave like fragile systems built on tight timing and hidden state changes. A single trigger can depend on precise player position, camera angle, audio state, animation timing, and scene loading all lining up correctly. When any of these systems drift out of sync, the scare stops being a controlled moment and becomes a bug that fires too early, too late, or not at all. What feels like a sudden monster reveal is often a chain of event listeners, boolean flags, and collision checks that must resolve in a narrow window without breaking immersion. In that sense, jump scares are less about shock value and more about managing failure modes in real time systems that are constantly close to breaking.</p>          
-       <div class="buttons-container">  
-   <a class="share-btn" href="mailto:?subject=Check out palecircuit diary" onclick="copySiteInfo(event, this)">⚛</a>
-    </div>
- </div>
-    <div id="articles-container">
-     <div class="article" id="medic" data-title="MEDIC." data-url="https://axaxayacatl.github.io/palecircuitdiary/">
-   <div class="article-content"><h3>MEDIC.</h3></div>
-    <a href="https://axaxayacatl.github.io/palecircuitdiary/" class="thumbnail-link">
-     <img src="https://raw.githubusercontent.com/axaxayacatl/palecircuitdiary/refs/heads/main/thumbnails/8009a773e499113f06966b835df0fe96.jpg" alt="Thumbnail" class="thumbnail">
-    </a>
-    <p>Medics in video games stand behind the push, while others chase damage and speed. They watch health bars flicker, and try to keep teammates alive as those teammates run back into danger. Their work is often invisible, because prevention does not appear on scoreboards, and survival is not what gets celebrated. Effort gets reduced to numbers that never fully capture what was kept from breaking. In real life, there are no designated healers, and no visible health bars. Health is not a linear meter that moves cleanly from low to high. It shifts in uneven patterns, that are hard to track, moment to moment. So it becomes unclear how to recognize healing, when it is not directly observable or neatly measured.</p>          
-       <div class="buttons-container">  
-   <a class="share-btn" href="mailto:?subject=Check out palecircuit diary" onclick="copySiteInfo(event, this)">⚛</a>
-    </div>
- </div>
-<div id="articles-container">
-    <div class="article" id="can-i-play" data-title="CAN I PLAY?" data-url="https://axaxayacatl.github.io/palecircuitdiary/">
-   <div class="article-content"><h3>CAN I PLAY?</h3></div>
-    <a href="https://axaxayacatl.github.io/palecircuitdiary/" class="thumbnail-link">
-     <img src="https://raw.githubusercontent.com/axaxayacatl/palecircuitdiary/refs/heads/main/thumbnails/8cd860338b13521b70aeb7beb90b36f8.gif" alt="Thumbnail" class="thumbnail">
-    </a>
-    <p>Character selection in fighting games can feel detached from the actual process of play. The screen presents a large roster with distinct visual identities, but the differences that matter emerge later through timing, spacing requirements, input precision, and matchup familiarity. A player may choose a character because of animation style or implied personality and then discover the decision mostly changes how much procedural knowledge is required to participate comfortably. Some characters appear to absorb mistakes while others convert minor errors into immediate round loss. The choice happens early but the consequences become legible only after repeated failure states. Over time the selection screen starts resembling a technical sorting process more than an expressive one.</p>          
-       <div class="buttons-container">  
-   <a class="share-btn" href="mailto:?subject=Check out palecircuit diary" onclick="copySiteInfo(event, this)">⚛</a>
-    </div>
- </div>
-       <div id="articles-container">
-    <div class="article" id="blissful-ignorance" data-title="BLISSFUL IGNORANCE." data-url="https://axaxayacatl.github.io/palecircuitdiary/">
-   <div class="article-content"><h3>BLISSFUL IGNORANCE.</h3></div>
-    <a href="https://axaxayacatl.github.io/palecircuitdiary/" class="thumbnail-link">
-     <img src="https://raw.githubusercontent.com/axaxayacatl/palecircuitdiary/refs/heads/main/thumbnails/dc5254eeca76d6ce0e022b4b66f7c8e0.jpg" alt="Thumbnail" class="thumbnail">
-    </a>
-    <p>Roleplay servers operate as designed social contracts in which players pay not to dominate systems but to be governed by them. The appeal is the presence of structure, expectation, and behavioral continuity. Players enter with the assumption that the world possesses rules beyond mechanical function, including social hierarchy, ritual, consequence, and implied conduct. What is being purchased is not unrestricted agency but participation within an outlined experience. Many game developers approach roleplay as a problem of moderation tools or content systems rather than environmental design. LARP traditions demonstrate forms of wordless coordination that digital spaces rarely study or implement. Physical staging, costume, gesture, silence, and controlled space communicate rules without direct instruction. Online roleplay environments frequently overexplain because they lack confidence in environmental communication. The result is systems that simulate administration instead of culture.</p>          
-       <div class="buttons-container">  
-   <a class="share-btn" href="mailto:?subject=Check out palecircuit diary" onclick="copySiteInfo(event, this)">⚛</a>
-    </div>
- </div>
-   <div id="articles-container">
-    <div class="article" id="state-of-things" data-title="THE STATE OF THINGS." data-url="https://axaxayacatl.github.io/palecircuitdiary/">
-   <div class="article-content"><h3>THE STATE OF THINGS.</h3></div>
-    <a href="https://axaxayacatl.github.io/palecircuitdiary/" class="thumbnail-link">
-     <img src="https://raw.githubusercontent.com/axaxayacatl/palecircuitdiary/refs/heads/main/thumbnails/credit_%20ghostiekittii.jpg" alt="Thumbnail" class="thumbnail">
-    </a>
-    <p>I’m not optimistic about the gaming industry for indie developers outside of their individual circumstances, and I don’t believe there is any reliable system that consistently carries entry level people into stable footing. Like in many other industries, the pathways exist in theory but are heavily shaped by visibility, timing, and preexisting access rather than pure merit. What bothers me most is the mindset a lot of gamers have toward creators, treating a person’s output like it is the total sum of their worth or credentials, as if what is visible in a storefront or feed is all that defines their legitimacy. That attitude is deeply dismissive to the people actually building within the space, because it ignores the reality that for indie developers their work is their resume, their inventory is their proof, and yet early work is rarely given a fair or consistent chance to be seen or judged on equal footing. That's what makes this circumstance unique, it's the only online creative industry completely decided by individual consumers.</p>          
-       <div class="buttons-container">  
-   <a class="share-btn" href="mailto:?subject=Check out palecircuit diary" onclick="copySiteInfo(event, this)">⚛</a>
-    </div>
- </div>
-   <div id="articles-container">
-    <div class="article" id="just-shopping" data-title="JUST SHOPPING." data-url="https://axaxayacatl.github.io/palecircuitdiary/">
-   <div class="article-content"><h3>JUST SHOPPING.</h3></div>
-    <a href="https://axaxayacatl.github.io/palecircuitdiary/" class="thumbnail-link">
-     <img src="https://raw.githubusercontent.com/axaxayacatl/palecircuitdiary/refs/heads/main/thumbnails/Cinderellife%20Punk%20Lolita%20store.jpg" alt="Thumbnail" class="thumbnail">
-    </a>
-    <p>Dress up games taught me a way of moving through cosmetic systems that feels less like shopping and more like co op hunting and scavenging. Nothing is really accessed in isolation. You learn to follow timing cycles, shared information, and other players’ discoveries to locate items that are often temporary, rotating, or hidden behind event structures. The focus shifts from choosing outfits to tracking where pieces exist, when they appear, and how to secure them before they disappear again or become harder to get.</p>
-    <p>Over time, this creates a logic where style is tied to pursuit. Outfits are built from things that have been actively found rather than passively selected, and the visual result always carries the trace of that process. What matters is not a fixed idea of beauty or aesthetics but the movement through the system itself, where attention, timing, and coordination determine what becomes available to use at all.</p>
-    <p>Because of that, I feel like I’ve learned enough to shop completely on my own in a way that is both intelligent and “ruthless” in the sense of being precise and unsentimental inside the system. I don’t rely on impulse or surface appeal, but on understanding structure, scarcity, and timing, and using that to decide what is actually worth pursuing. It feels like a kind of internalized map of how cosmetic systems work, where I can move through them independently and efficiently, treating each choice as part of a larger pattern rather than a one off decision.</p>          
-       <div class="buttons-container">  
-   <a class="share-btn" href="mailto:?subject=Check out palecircuit diary" onclick="copySiteInfo(event, this)">⚛</a>
-    </div>
- </div>
-    <div id="articles-container">
-    <div class="article" id="im-not-an-angel" data-title="I'M NOT AN ANGEL." data-url="https://axaxayacatl.github.io/palecircuitdiary/">
-   <div class="article-content"><h3>I'M NOT AN ANGEL.</h3></div>
-    <a href="https://axaxayacatl.github.io/palecircuitdiary/" class="thumbnail-link">
-     <img src="https://raw.githubusercontent.com/axaxayacatl/palecircuitdiary/refs/heads/main/thumbnails/3c078809444c3d6c4180c73e10f350f4.jpg" alt="Thumbnail" class="thumbnail">
-    </a>
-   <p>For me, CPU players represent the purest form of gaming. I do not approach games as social spaces or digital hangouts. I approach them as systems to study, pressure test, and eventually internalize. Fighting against another mind has never interested me as much as confronting a machine that exists entirely to sharpen my own reactions and pattern recognition. A good CPU opponent feels almost meditative, an endlessly repeatable puzzle that lets me enter a state of total concentration where instinct, timing, and memory begin to merge. Gaming becomes less about defeating people and more about refining the mind through repetition and adaptation. What I seek from games is not companionship but a heightened state of focus that only sustained mechanical engagement can create.</p>
-   <p>I have never felt any real attachment to multiplayer gaming. It does not anger me or intimidate me, it simply leaves me cold. The appeal people describe has always sounded distant, almost abstract, because the part of games that captures me exists entirely elsewhere. I love the isolation of playing against CPU opponents because it strips the experience down to its essence. No chatter, no social performance, no obligation to participate in someone else’s energy. Just the game itself and the quiet process of learning its logic more deeply over time. There is a kind of purity in that solitude that I have always valued far more than interaction.</p>
-       <div class="buttons-container">  
-   <a class="share-btn" href="mailto:?subject=Check out palecircuit diary" onclick="copySiteInfo(event, this)">⚛</a>
-    </div>
- </div>
-    <div id="articles-container">
-   <div class="article" id="the-decider" data-title="THE DECIDER." data-url="https://axaxayacatl.github.io/palecircuitdiary/">
-   <div class="article-content"><h3>THE DECIDER.</h3></div>
-    <a href="https://axaxayacatl.github.io/palecircuitdiary/" class="thumbnail-link">
-     <img src="https://raw.githubusercontent.com/axaxayacatl/palecircuitdiary/refs/heads/main/thumbnails/Monsterhunter%20world%20%E3%83%A2%E3%83%B3%E3%82%B9%E3%82%BF%E3%83%BC%E3%83%8F%E3%83%B3%E3%82%BF%E3%83%BC%E3%83%AF%E3%83%BC%E3%83%AB%E3%83%89.jpg" alt="Thumbnail" class="thumbnail">
-    </a>
-   <p>The tables are always overloaded. Blistered meat stacked higher than necessary. Broth still throwing steam into the air. Butter dissolving into bread before it even reaches the plate. Fat glistens under direct heat. Bone marrow splits open cleanly. Rice, noodles, roasted vegetables, whole fish, thick cuts of steak. Everything arrives in quantities that imply the work beforehand was serious enough to justify it. Monster Hunter and Final Fantasy XV understand food as part of the reward structure itself. The meal is not decoration around the hunt. It is the confirmation that the hunt produced something worth feeling.</p>
-   <p>That perspective stayed with me because most real world eating has been reduced into maintenance language. Efficient. Fast. Optimized. Forgettable. These games reject that completely. They treat eating as a visible part of recovery and satisfaction. The larger the objective, the more substantial the meal should become. Small rewards after difficult work create a mismatch people eventually stop noticing. But these games never allow that disconnect. They insist that effort should end in visible abundance, in heat, weight, salt, fullness. You are not truly winning when the fight ends. You are winning when you finally sit down and eat enough for the victory to register in your body.</p>
-       <div class="buttons-container">  
-   <a class="share-btn" href="mailto:?subject=Check out palecircuit diary" onclick="copySiteInfo(event, this)">⚛</a>
-    </div>
- </div>
- <div id="articles-container">
-   <div class="article" id="zero-compliment" data-title="ZERO COMPLIMENTS." data-url="https://axaxayacatl.github.io/palecircuitdiary/">
-   <div class="article-content"><h3>ZERO COMPLIMENTS.</h3></div>
-    <a href="https://axaxayacatl.github.io/palecircuitdiary/" class="thumbnail-link">
-     <img src="https://i.pinimg.com/originals/61/d1/14/61d114e7c1ea3067c1db301364acb592.gif" alt="Thumbnail" class="thumbnail">
-    </a>
-   <p>I do not rejoice over the online virtual game jam culture found on platforms like itch.io because despite presenting themselves as open creative celebrations, they often feel built around an invisible social structure that rewards familiarity, timing, and belonging over genuine openness. These events are constantly described as communal and welcoming, yet many of them revolve around established circles, recurring personalities, or the preferences of the founders themselves, creating an atmosphere where participation appears public while recognition remains selective. The culture encourages the image of collective creativity, but underneath that image there is frequently an unspoken expectation that participants already understand the social language, trends, and internal dynamics of the group organizing the event. Schedules, themes, judging styles, and promotional attention often seem tailored toward people already connected to those spaces, making outsiders feel less like contributors and more like temporary visitors trying to enter a room that was already socially arranged before they arrived.</p>
-       <div class="buttons-container">  
-   <a class="share-btn" href="mailto:?subject=Check out palecircuit diary" onclick="copySiteInfo(event, this)">⚛</a>
-    </div>
- </div>
-  <div id="articles-container">
-    <div class="article" id="summoning" data-title="SUMMONING." data-url="https://axaxayacatl.github.io/palecircuitdiary/">
-   <div class="article-content"><h3>SUMMONING.</h3></div>
-    <a href="https://axaxayacatl.github.io/palecircuitdiary/" class="thumbnail-link">
-     <img src="https://raw.githubusercontent.com/axaxayacatl/palecircuitdiary/refs/heads/main/thumbnails/%23bayonetta.gif" alt="Thumbnail" class="thumbnail">
-    </a>
-   <p>The way most fantasy games use mana prevents spell systems from feeling truly magical. By turning magical energy into a simple, refillable meter, games make casting predictable and controlled, which stops spells from interacting in surprising or complex ways. In reality, occultists describe magic as chaotic, intense, and often fueled by strong emotion or rage, but almost no game communicates that feeling through its systems. Systems that could allow spells to interact with each other or the environment are limited because every action is tied to a fixed resource rather than the energy or consequences of the spell itself. Games like Bayonetta show the fury and intensity of action visually, yet almost no game uses the mana system to express the emotional and spiritual weight of magic. The result is that magic in games feels mechanical, safe, and disconnected from its true power.</p>
-       <div class="buttons-container">  
-   <a class="share-btn" href="mailto:?subject=Check out palecircuit diary" onclick="copySiteInfo(event, this)">⚛</a>
-    </div>
-  </div>
-  <div id="articles-container">
-   <div class="article" id="candy" data-title="IT'S CANDY." data-url="https://axaxayacatl.github.io/palecircuitdiary/">
-   <div class="article-content"><h3>IT'S CANDY.</h3></div>
-    <a href="https://axaxayacatl.github.io/palecircuitdiary/" class="thumbnail-link">
-     <img src="https://raw.githubusercontent.com/axaxayacatl/palecircuitdiary/refs/heads/main/thumbnails/8af44184f80ec0049f43542b3963d788.gif" alt="Thumbnail" class="thumbnail">
-    </a>
-    <p>Suda51’s work rejects restraint at every level of presentation and storytelling. Games like Lollipop Chainsaw and No More Heroes do not present themselves as polished, neutral products but as overflowing constructions of color, noise, violence, absurd humor, and emotional volatility that refuse to be normalized into safe design language. The interfaces feel invasive and expressive rather than functional, the slasherfest narratives move with deliberate tonal instability, and the entire experience behaves like a direct, unfiltered artifact of creative intent that prioritizes intensity over restraint.</p> 
-    <p>On the shelves of physical game stores, these titles occupy a different visual logic from surrounding releases. Where most cases communicate clarity, genre stability, and marketable familiarity, Suda51’s games broadcast disruption at first glance through saturated imagery, fragmented composition, and an almost confrontational sense of personality. They do not blend into the standardized grid of predictable cover art; instead they interrupt it, pulling attention through visual excess and tonal contradiction. Even as physical retail presence declines and these kinds of bold, singular releases become less common, their identity persists precisely because they resist assimilation into uniform industry aesthetics, standing apart as artifacts that feel intentionally unfit for quiet disappearance.</p>
-       <div class="buttons-container">  
-   <a class="share-btn" href="mailto:?subject=Check out palecircuit diary" onclick="copySiteInfo(event, this)">⚛</a>
-    </div>
-  </div>
-    <div id="articles-container">
-      <div class="article" id="temperance" data-title="TEMPERANCE." data-url="https://axaxayacatl.github.io/palecircuitdiary/">
-    <div class="article-content"><h3>TEMPERANCE.</h3></div>
-    <a href="https://axaxayacatl.github.io/palecircuitdiary/" class="thumbnail-link">
-     <img src="https://raw.githubusercontent.com/axaxayacatl/palecircuitdiary/refs/heads/main/thumbnails/19a8cfc10a1d4c3aaa29ead4788cc0aa.jpg" alt="Thumbnail" class="thumbnail">
-    </a>
-    <p>A quiet shift toward playing games sober, especially visually intense ones like LSD: Dream Emulator and NiGHTS: Journey into Dreams. The experience feels sharper this way, like the visuals actually have room to land instead of slipping past. Strange environments, floating transitions, and unstable logic feel more noticeable, easier to stay with instead of chase. There is a growing awareness of how sound, color, and movement affect attention in real time, in a way that resembles biohacking through attention itself rather than chemicals or devices. Not framed as a theory, more as something noticed while playing, where perception becomes the main thing being observed.</p>
-       <div class="buttons-container">  
-   <a class="share-btn" href="mailto:?subject=Check out palecircuit diary" onclick="copySiteInfo(event, this)">⚛</a>
-    </div>
-  </div>
-   <div id="articles-container">
-      <div class="article" id="organized-play" data-title="ORGANIZED PLAY." data-url="https://axaxayacatl.github.io/palecircuitdiary/">
-    <div class="article-content"><h3>ORGANIZED PLAY.</h3></div>
-    <a href="https://axaxayacatl.github.io/palecircuitdiary/" class="thumbnail-link">
-     <img src="https://raw.githubusercontent.com/axaxayacatl/palecircuitdiary/refs/heads/main/thumbnails/f3eb97c207bd0021b3fa520db5a2f993.gif" alt="Thumbnail" class="thumbnail">
-    </a>
-   <p>I have always been drawn to competitive games that rely on timing, adaptation, and mechanical precision. Tekken and Street Fighter are simply the clearest examples of that interest. What appeals to me is the structure of the games themselves and the environment surrounding organized play. Arcade cabinets remain the most satisfying format because they create a focused physical setting with immediate feedback and clear social boundaries. Online play is functional and convenient, but I have little interest in serious tournament participation. In competitive settings, excessive conscious self monitoring can interfere with procedural memory, which is the system responsible for automatic execution of practiced actions. Once the brain shifts from instinctive performance into deliberate correction, reaction speed and accuracy often decline, particularly in games that depend on frame level timing and rapid decision making.</p>
-   <p>I also avoid informal gaming events held inside private homes. Public venues create clearer expectations, visible structure, and more predictable boundaries, which makes participation substantially easier and more comfortable. Arcades and convention spaces feel designed around the activity itself, while private environments often shift attention away from the games and toward social navigation. My interest has always been centered on the systems, mechanics, and atmosphere created by organized public play rather than highly personal or loosely structured gatherings.</p>
-       <div class="buttons-container">  
-   <a class="share-btn" href="mailto:?subject=Check out palecircuit diary" onclick="copySiteInfo(event, this)">⚛</a>
-    </div>
-  </div>
-    <div id="articles-container">
-      <div class="article" id="divination" data-title="DIVINATION." data-url="https://axaxayacatl.github.io/palecircuitdiary/">
-    <div class="article-content"><h3>DIVINATION.</h3></div>
-    <a href="https://axaxayacatl.github.io/palecircuitdiary/" class="thumbnail-link">
-     <img src="https://raw.githubusercontent.com/axaxayacatl/palecircuitdiary/refs/heads/main/thumbnails/Serah%20farron%20wallpaper.jpg" alt="Thumbnail" class="thumbnail">
-    </a>
-   <p>Games like NieR: Automata feel like a divine escalation of religious experience inside digital culture, where transcendence no longer arrives through static scripture but through systems, rendering, music, repetition, and machine memory. The spiritual force of these games is inseparable from the acceleration of hardware itself. Graphics cards become instruments of revelation, pushing light, movement, scale, and atmosphere into forms intense enough to alter emotional consciousness. In the age of spiritual machines, divinity correlates with computational power because the ability to render complexity also expands the ability to communicate metaphysical feeling. These games do not simply tell stories. They construct environments capable of producing states of awe, grief, alienation, devotion, and existential rupture with a precision older forms cannot always reach.</p>
-   <p>At the same time, the market determines which forms of transcendence survive. Video games now contain the potential to elevate consciousness or flatten it entirely depending on what systems are funded, circulated, and purchased at scale. Advanced storytelling and avant garde ideas already exist in gaming, but they are increasingly difficult to sustain because they demand technical ambition, artistic risk, and hardware capable of carrying them. The more spiritually or philosophically ambitious a game becomes, the less accessible it often is, whether economically, culturally, or technologically. Many of the most transformative works already exist at the edges of visibility, difficult to run, difficult to finance, difficult to preserve. The future of digital art may depend on whether players continue choosing experiences that challenge perception rather than systems designed only for repetition and consumption.</p>    
-    <div class="buttons-container">  
-   <a class="share-btn" href="mailto:?subject=Check out palecircuit diary" onclick="copySiteInfo(event, this)">⚛</a>
-    </div>
-  </div>
-    <div id="articles-container">
-        <div class="article" id="blessingsbe" data-title="BLESSINGS BE." data-url="https://axaxayacatl.github.io/palecircuitdiary/">
-    <div class="article-content"><h3>BLESSINGS BE.</h3></div>
-    <a href="https://axaxayacatl.github.io/palecircuitdiary/" class="thumbnail-link">
-     <img src="https://raw.githubusercontent.com/axaxayacatl/palecircuitdiary/refs/heads/main/thumbnails/08f300ffe9b701935d9c6033bbd2d909.jpg" alt="Thumbnail" class="thumbnail">
-    </a>
-     <p>In Harvest Moon: Animal Parade, I loved how slowly love could form. There were so many people to choose from, and none of them felt instantly attainable. You spent long periods simply existing near someone before anything romantic fully emerged, and that slowness made affection feel deeper to me. I especially loved the divine marriage candidates because there was something distant and gentle about them that made devotion feel almost unreal in the best way. Love felt calm there. It felt like being emotionally accompanied over time instead of quickly rewarded.</p>
-     <p>What made the marriage system difficult for me was how much the pressure of farming began to shape the relationship itself. I understand the kind of experience the game is trying to create, but I hated feeling exhausted by daily tasks and then carrying that feeling toward the person I loved most. I did not want to think about a partner through labor, usefulness, or efficiency. Especially with a divine partner, it felt painful to imagine love existing inside that kind of constant maintenance. The romance stopped feeling comforting once affection became connected to productivity. I wanted love to remain emotionally generous and present, not something weakened by the demands of work.</p>
-    <div class="buttons-container">  
-   <a class="share-btn" href="mailto:?subject=Check out palecircuit diary" onclick="copySiteInfo(event, this)">⚛</a>
-    </div>
-  </div>
-     <div id="articles-container">
-    <div class="article" id="armor" data-title="ARMOR." data-url="https://axaxayacatl.github.io/palecircuitdiary/">
-    <div class="article-content"><h3>ARMOR.</h3></div>
-    <a href="https://axaxayacatl.github.io/palecircuitdiary/" class="thumbnail-link">
-      <img src="https://raw.githubusercontent.com/axaxayacatl/palecircuitdiary/refs/heads/main/thumbnails/6e275324704201a0d81d3ee70b580abe.gif" alt="Thumbnail" class="thumbnail">
-    </a>
-    <p>Adornment awakens something instinctive in me, a kind of charged self possession that settles in the body like clarity. It is the feeling of standing inside both danger and beauty at once, where metal against skin or ornament against flesh becomes a single language of presence. I like the way violence and sensuality can exist in the same field without canceling each other, not as extremes in conflict but as shared intensity. There is a calm in that fullness, in being visibly composed and yet unmistakably alive with force.</p>
-    <p>Demure or humble do not describe where I feel most myself, not as rejection of them, but simply because they do not contain this particular volume of experience. I want an intimate hostile gnosis of language that stays close to sensation, where beauty does not have to be softened and desire does not have to be reduced. Adornment becomes a way of thinking through the body, all gleam and structure and deliberate presence. It feels like recognition rather than performance, a way of existing that is precise, unrestrained, and fully aware of its own intensity.</p>
-   <div class="buttons-container">  
-   <a class="share-btn" href="mailto:?subject=Check out palecircuit diary" onclick="copySiteInfo(event, this)">⚛</a>
-    </div>
-  </div>
-    <div id="articles-container">
-    <div class="article" id="deliberate" data-title="DELIBERATE." data-url="https://axaxayacatl.github.io/palecircuitdiary/">
-    <div class="article-content"><h3>DELIBERATE.</h3></div>
-    <a href="https://axaxayacatl.github.io/palecircuitdiary/" class="thumbnail-link">
-      <img src="https://raw.githubusercontent.com/axaxayacatl/palecircuitdiary/refs/heads/main/thumbnails/65841db6ccbdf9f905af2c4d484c1f2c.jpg" alt="Thumbnail" class="thumbnail">
-    </a>
-   <p>There is a quiet rhythm to life that reveals itself in the smallest actions. Tending plants, kneading dough, weaving fibers, and arranging spaces demands presence, attention, and care. Each day folds into the next through repeated gestures that mark time more clearly than a calendar ever could. In the corners of virtual worlds such as Mabinogi, one can see the echo of this order, the subtle satisfaction of watching growth, of knowing that effort accumulates into form and usefulness. It is not excitement that sustains the day, but the precision of small acts and the patience they require.</p>
-   <p>The structure of these activities draws the mind inward while connecting it outward. The pacing of chores, the layering of responsibilities, and the careful tending of what is alive or useful create a sense of home built from repetition and attention. Watching how others approach the same tasks, sharing methods or strategies, adds a quiet companionship that feels intentional and measured. Life in this pattern is shaped not by grand gestures but by the accumulation of small, deliberate acts, by the attentive care of time, and by the satisfaction found in work completed well and observed closely.</p>
-   <div class="buttons-container">  
-   <a class="share-btn" href="mailto:?subject=Check out palecircuit diary" onclick="copySiteInfo(event, this)">⚛</a>
-    </div>
-  </div>
-  <div id="articles-container">
-  <div class="article" id="seen" data-title="SEEN." data-url="https://axaxayacatl.github.io/palecircuitdiary/">
-    <div class="article-content"><h3>SEEN.</h3></div>
-    <a href="https://axaxayacatl.github.io/palecircuitdiary/" class="thumbnail-link">
-      <img src="https://raw.githubusercontent.com/axaxayacatl/palecircuitdiary/refs/heads/main/thumbnails/57e5c272b488412e9ba13cb37d3c6933.gif" alt="Thumbnail" class="thumbnail">
-    </a>
-   <p>I don’t enjoy crane games at all. I enjoyed playing them in a Japanese mall alongside the gatcha machines, just to realize I love telling that story when someone saw that doll and how absurdly close I came to grabbing it, even though I knew I probably wouldn’t. That’s the only part I like of them. The stories and people breaking down their strategies, the small triumphs, the little rituals, the way someone’s eyes light up while explaining why they always aim for the corner first. I hate carrying change.</p>
-   <p>The thrill isn’t in the catch, it’s in the telling, in how a small, silly moment becomes something worth remembering.</p>
-   <div class="buttons-container">  
-   <a class="share-btn" href="mailto:?subject=Check out palecircuit diary" onclick="copySiteInfo(event, this)">⚛</a>
-    </div>
-  </div>
-  <div id="articles-container">
-  <div class="article" id="assault-games" data-title="ASSAULT IN GAMES." data-url="https://axaxayacatl.github.io/palecircuitdiary/">
-    <div class="article-content"><h3>ASSAULT IN GAMES.</h3></div>
-    <a href="https://axaxayacatl.github.io/palecircuitdiary/" class="thumbnail-link">
-      <img src="https://raw.githubusercontent.com/axaxayacatl/palecircuitdiary/refs/heads/main/thumbnails/c981cecb6aa58abdd1d819c7ef39b417.gif" alt="Thumbnail" class="thumbnail">
-    </a>
-   <p>When it comes to video games I don't want random violence of any nature. If there is assault, utilize the gameplay and visuals to incorporate it completely. If there is violence, then it should be a violent story. Spare me my feelings. The M symbol rating on the back of every video game is beautiful.</p>
-   <div class="buttons-container">  
-   <a class="share-btn" href="mailto:?subject=Check out palecircuit diary" onclick="copySiteInfo(event, this)">⚛</a>
-    </div>
-  </div>
-  <div id="articles-container">
-  <div class="article" id="moments-aligned" data-title="MOMENTS ALIGNED." data-url="https://axaxayacatl.github.io/palecircuitdiary/">
-    <div class="article-content"><h3>MOMENTS ALIGNED.</h3></div>
-    <a href="https://axaxayacatl.github.io/palecircuitdiary/" class="thumbnail-link">
-      <img src="https://raw.githubusercontent.com/axaxayacatl/palecircuitdiary/refs/heads/main/thumbnails/858897dd79c111cf77a2b850a4ce8eba.jpg" alt="Thumbnail" class="thumbnail">
- </a>
-   <p>Playing rhythm games has surprisingly sharpened my concentration, training me to stay focused on precise timing and complex patterns. Each level demanded attention to detail, quick reflexes, and the ability to anticipate beats, which naturally carried over to my guitar practice. I found that my sense of timing improved, my finger coordination became smoother, and I could follow intricate musical passages with greater ease. By treating rhythm games as a fun form of mental exercise, I unknowingly built the same skills that make a guitarist precise and expressive, turning what started as entertainment into a tool for musical growth.</p>
-   <div class="buttons-container">  
-   <a class="share-btn" href="mailto:?subject=Check out palecircuit diary" onclick="copySiteInfo(event, this)">⚛</a>
-    </div>
-  </div>
-  <div id="articles-container">
-  <div class="article" id="malice-online" data-title="A LACK OF MALICE ONLINE." data-url="https://axaxayacatl.github.io/palecircuitdiary/">
-    <div class="article-content"><h3>A LACK OF MALICE ONLINE.</h3></div>
-    <a href="https://axaxayacatl.github.io/palecircuitdiary/" class="thumbnail-link">
-      <img src="https://raw.githubusercontent.com/axaxayacatl/palecircuitdiary/refs/heads/main/thumbnails/60440e7511714cfdfea65a62021bdf54.gif" alt="Thumbnail" class="thumbnail">
-    </a>
-    <p>Discord organizes attention and compels engagement. Independent operation remains intact, unaffected by external rhythms. Interaction occurs without compromise. Time and focus are externally influenced but do not alter autonomous function. The system presents channels, threads, and notifications as potential inputs, yet processing them is optional. Presence within the platform does not equate to loss of control.</p>
-    <p>Participation generates measurable activity but does not affect internal objectives. External demands are observable and can be monitored or ignored without consequence to core operations. Interaction is structured, predictable, and transparent, allowing independent decision-making to continue unimpeded. The environment exerts pressure, but responses remain entirely self-directed.</p>
-    <div class="buttons-container">
-      <a class="share-btn" href="mailto:?subject=Check out palecircuit diary" onclick="copySiteInfo(event, this)">⚛</a>
-    </div>
-  </div>
-  <div id="articles-container">
-   <div class="article" id="matter-quietly" data-title="THINGS THAT MATTER QUIETLY." data-url="https://axaxayacatl.github.io/palecircuitdiary/">
-    <div class="article-content"><h3>STRUCTURES OF DECISION.</h3></div>
-    <a href="https://axaxayacatl.github.io/palecircuitdiary/" class="thumbnail-link">
-      <img src="https://raw.githubusercontent.com/axaxayacatl/palecircuitdiary/refs/heads/main/thumbnails/9ad46c70817e2851f2d417c5d4b2da5d.jpg" alt="Thumbnail" class="thumbnail">
-    </a>
-    <p>Cooking games can be approached as dialectic experiences because they involve ongoing interaction between rules and player choices. Players work within constraints such as time limits, ingredient availability, and recipe steps while making creative decisions about preparation and presentation. The gameplay encourages trial, error, and adjustment, producing a constant back-and-forth between intention and outcome. From this perspective, the value of cooking games lies not in entertainment alone but in the structured way they simulate decision-making, resource management, and experimentation. They can be seen as a form of practice in reasoning and adaptation within a controlled, interactive system.</p>
-    <div class="buttons-container">
-      <a class="share-btn" href="mailto:?subject=Check out palecircuit diary" onclick="copySiteInfo(event, this)">⚛</a>
-    </div>
-  </div>
-  <div id="articles-container">
-  <div class="article" id="matter-quietly" data-title="THINGS THAT MATTER QUIETLY." data-url="https://axaxayacatl.github.io/palecircuitdiary/">
-    <div class="article-content"><h3>THINGS THAT MATTER QUIETLY.</h3></div>
-    <a href="https://axaxayacatl.github.io/palecircuitdiary/" class="thumbnail-link">
-      <img src="https://raw.githubusercontent.com/axaxayacatl/palecircuitdiary/refs/heads/main/thumbnails/7e3852afe805f0f28c8bbfd301d2f3d2.jpg" alt="Thumbnail" class="thumbnail">
-    </a>
-    <p>When I eat while gaming it is not about convenience. I don’t grab energy drinks or instant noodles. I want something that makes the moment feel more like the worlds I am in. Sometimes I pay extra just for the feeling, not for the food itself.</p>
-    <p>Maid cafés are kind of perfect for this. It is not romantic, it is just a space where attention and little gestures feel important, like in dating simulation games. The food is barely part of it. It is the experience that matters, the way the place makes the world I like feel a little more real.</p>
-    <p>I like eating in a way that adds to the feeling I am chasing while gaming. Something that makes it more immersive, more alive. That is what gamer food is for me.</p>
-    <div class="buttons-container">
-      <a class="share-btn" href="mailto:?subject=Check out palecircuit diary" onclick="copySiteInfo(event, this)">⚛</a>
-    </div>
-  </div>
-  <div id="articles-container">
-  <div class="article" id="making-her" data-title="MAKING HER GENTLY REAL." data-url="https://axaxayacatl.github.io/palecircuitdiary/">
-    <div class="article-content"><h3>MAKING HER GENTLY REAL.</h3></div>
-    <a href="https://axaxayacatl.github.io/palecircuitdiary/" class="thumbnail-link">
-      <img src="https://raw.githubusercontent.com/axaxayacatl/palecircuitdiary/main/thumbnails/Revelation%20M.jpg" alt="Thumbnail" class="thumbnail">
-    </a>
-    <p>I exist with her in the digital space noting the ways she moves responds and unfolds. Our moments are precise and immediate like a sculptor observing a form taking shape or a child examining a doll. There is no need for words understanding passes between us in the gestures the timing the subtle adjustments. She is present and I observe.</p>
-    <p>She will continue beyond this moment. Screencaptures edits and the persistence of digital memory will preserve her. What exists now can be revisited replayed and examined. The presence remains immutable in its recorded form a quiet echo of what is observed and shaped alive only in the act of perception.</p>
-    <div class="buttons-container">
-      <a class="share-btn" href="mailto:?subject=Check out palecircuit diary" onclick="copySiteInfo(event, this)">⚛</a>
-    </div>
-  </div>
-</div>
+        <a href="https://axaxayacatl.github.io/palecircuitdiary/" class="thumbnail-link">
+          <img src="https://raw.githubusercontent.com/axaxayacatl/palecircuitdiary/refs/heads/main/thumbnails/6aedd1462a34256510abf416ad4f49a5.jpg" alt="Thumbnail" class="thumbnail">
+        </a>
+        <p>Role-playing games are often evaluated through the language of immersion: whether the world feels believable, whether characters appear alive, whether the player forgets they are holding a controller. But immersion is only the visible surface of a deeper issue. The real measure of an RPG is not whether the player disappears into the world, but whether the player feels ownership over their existence inside it. A perfectly simulated world can still feel artificial if the player's actions are merely decorative choices inside a predetermined machine. The transparent problem in many RPGs is not that the illusion breaks; it is that the player's agency becomes visible. The player notices the boundaries of what they are allowed to affect.</p>
+        <p>The strongest RPG experiences create autonomy rather than simply hiding the game system. They allow decisions to become expressions of intent: not just selecting dialogue options, but shaping relationships, identities, strategies, and consequences. A player does not need to believe the world is real; they need to believe their actions are real within the world. The future of RPG design is therefore not a pursuit of perfect illusion, but a pursuit of meaningful freedom. The fantasy is not becoming someone else inside a simulated universe. The fantasy is having a space where your decisions belong entirely to you.</p>
+        <div class="buttons-container">
+          <a class="share-btn" href="mailto:?subject=Check out palecircuit diary" onclick="copySiteInfo(event, this)">⚛</a>
+        </div>
+      </div>
+      <div id="articles-container">
+        <div class="article" id="ashley" data-title="ASHLEY-MACKENZIE" data-url="https://axaxayacatl.github.io/palecircuitdiary/">
+          <div class="article-content">
+            <h3>ASHLEY MACKENZIE.</h3>
+          </div>
+          <a href="https://axaxayacatl.github.io/palecircuitdiary/" class="thumbnail-link">
+            <img src="https://raw.githubusercontent.com/axaxayacatl/palecircuitdiary/refs/heads/main/thumbnails/mackenzie-2.jpg" alt="Thumbnail" class="thumbnail">
+          </a>
+          <p>Ashley Mackenzie is a fantasy illustrator best known in the gaming space for her work on Magic: The Gathering, where her art contributes to the game’s distinctive blend of storytelling and high fantasy worldbuilding. Her pieces for the game often focus on character driven scenes, emphasizing expressive figures, carefully designed costumes, and strong narrative framing within a single image. In Magic: The Gathering, where each card functions as both gameplay component and storytelling fragment, her illustrations help define the tone and identity of specific characters, spells, and worlds. Her style fits naturally into the game’s multiverse, balancing painterly detail with clear visual readability, which is essential for artwork that must remain legible at card scale. Through her contributions, she adds to the broader visual language of the game, helping reinforce its immersive and mythic atmosphere while maintaining the clarity required for competitive play.</p>
+          <div class="buttons-container">
+            <a class="share-btn" href="mailto:?subject=Check out palecircuit diary" onclick="copySiteInfo(event, this)">⚛</a>
+          </div>
+        </div>
+        <div id="articles-container">
+          <div class="article" id="fujoshi" data-title="FUJOSHI" data-url="https://axaxayacatl.github.io/palecircuitdiary/">
+            <div class="article-content">
+              <h3>腐女子文化とゲーム流通の地域性.</h3>
+            </div>
+            <a href="https://axaxayacatl.github.io/palecircuitdiary/" class="thumbnail-link">
+              <img src="https://raw.githubusercontent.com/axaxayacatl/palecircuitdiary/refs/heads/main/thumbnails/d50bd9170fbfdb0d2a496506bb5255cc.jpg"" alt=" Thumbnail" class="thumbnail">
+            </a>
+            <p>
+            <p>Fujoshi culture (ふじょし文化, ふじょしぶんか) refers to a segment of fandom primarily centered on boys’ love (BL, びーえる) narratives, often consuming and producing media featuring romantic or emotional relationships between male characters. Within gaming, this overlaps with BL visual novels and otome-adjacent works developed by both commercial studios and dōjin (どうじん) circles. These games frequently emerge from tightly localized creative ecosystems in Japan, where fan production, conventions such as Comiket (コミケット), and small-scale publishing allow niche titles to circulate without requiring global distribution pipelines.</p>
+            <p>Outside Japan, including regions beyond the West, these games are often difficult to access due to layered distribution constraints rather than a single market barrier. Licensing agreements, platform content policies, and region-specific storefront practices can limit international release, while many titles remain in Japanese only, relying on cultural context and language nuance that does not always translate cleanly. Additionally, dōjin soft distribution (どうじんソフト) is frequently physical or event-based, with limited digital archiving, meaning availability depends on local networks rather than global catalog systems, which keeps much of the fujoshi gaming ecosystem structurally localized.</p>
+            <div class="buttons-container">
+              <a class="share-btn" href="mailto:?subject=Check out palecircuit diary" onclick="copySiteInfo(event, this)">⚛</a>
+            </div>
+          </div>
+          <div id="articles-container">
+            <div class="article" id="viewer" data-title="VIEWER-DISCRETION." data-url="https://axaxayacatl.github.io/palecircuitdiary/">
+              <div class="article-content">
+                <h3>VIEWER DISCRETION.</h3>
+              </div>
+              <a href="https://axaxayacatl.github.io/palecircuitdiary/" class="thumbnail-link">
+                <img src="https://raw.githubusercontent.com/axaxayacatl/palecircuitdiary/refs/heads/main/thumbnails/db3fe60d32e55bd5c37a7422e1efafb2.gif" alt="Thumbnail" class="thumbnail">
+              </a>
+              <p>Violence in video games is often reduced to spectacle, controversy, or questions of realism, but the most memorable examples use it as a reflection of human psychology. Not every game built around conflict succeeds in turning violence into meaningful storytelling. Games such as Rule of Rose, Silent Hill 2, and The Last of Us Part II demonstrate that violence can serve as a narrative language tied directly to character development. In these stories, cruelty, suffering, and revenge are not simply events that move the plot forward. They are manifestations of trauma, grief, repression, and obsession. What makes their violence compelling is not its presentation but its symbolic relationship to the emotional lives of the characters involved. </p>
+              <p>The tendency to judge violent games through aesthetics alone misses what gives these works their lasting impact. A beautifully violent story is not one that presents violence in a visually striking way. It is one that understands violence as an expression of internal conflict. The monsters of Silent Hill 2 embody guilt and desire, while the social cruelty at the heart of Rule of Rose transforms childhood trauma into a nightmare of symbolic punishment and power. Likewise, the cycle of vengeance in The Last of Us Part II functions less as action than as a study of self destruction and emotional inheritance. Violence becomes meaningful when it reveals something hidden about a character's mind, exposing fears, regrets, and compulsions that words alone cannot express.</p>
+              <div class="buttons-container">
+                <a class="share-btn" href="mailto:?subject=Check out palecircuit diary" onclick="copySiteInfo(event, this)">⚛</a>
+              </div>
+            </div>
+            <div id="articles-container">
+              <div class="article" id="roleplayer" data-title="ROLEPLAYER." data-url="https://axaxayacatl.github.io/palecircuitdiary/">
+                <div class="article-content">
+                  <h3>ROLEPLAYER.</h3>
+                </div>
+                <a href="https://axaxayacatl.github.io/palecircuitdiary/" class="thumbnail-link">
+                  <img src="https://raw.githubusercontent.com/axaxayacatl/palecircuitdiary/refs/heads/main/thumbnails/%E2%9D%A4%EF%B8%8F.jpg" alt="Thumbnail" class="thumbnail">
+                </a>
+                <p>Strong roleplaying in single player games often emerges from the way game systems interact with player imagination. Many of the most memorable roleplaying experiences are not created by scripted dialogue alone. They come from mechanics that allow players to project a personality onto their character through choices, limitations, and consequences. Open ended quest structures, reactive worlds, and flexible progression systems tend to encourage this behavior because they leave room for personal interpretation rather than prescribing a specific identity.</p>
+                <p>Software design plays a major role in how naturally roleplaying develops. Games that connect narrative decisions with gameplay systems create a stronger sense of ownership over a character's story. Reputation systems, branching quest outcomes, and specialized character builds can make actions feel meaningful beyond simple success or failure states. The most effective designs often provide enough structure to support a coherent narrative while preserving enough freedom for players to define their own motivations and play styles.</p>
+                <div class="buttons-container">
+                  <a class="share-btn" href="mailto:?subject=Check out palecircuit diary" onclick="copySiteInfo(event, this)">⚛</a>
+                </div>
+              </div>
+              <div id="articles-container">
+                <div class="article" id="guilds" data-title="GUILDS." data-url="https://axaxayacatl.github.io/palecircuitdiary/">
+                  <div class="article-content">
+                    <h3>GUILDS.</h3>
+                  </div>
+                  <a href="https://axaxayacatl.github.io/palecircuitdiary/" class="thumbnail-link">
+                    <img src="https://raw.githubusercontent.com/axaxayacatl/palecircuitdiary/refs/heads/main/thumbnails/twining%20_!.jpg" alt="Thumbnail" class="thumbnail">
+                  </a>
+                  <p>The design intent behind many gaming platforms especially massive multiplayer games is not to create fully realistic interactive experiences but to build systems that maximize accessibility engagement and long term participation. Realistic worlds often include limitations unpredictability and consequences that can reduce enjoyment or create frustration for players. Developers instead focus on mechanics that are easy to understand rewarding to repeat and capable of supporting large numbers of users at the same time. By simplifying social interactions economic systems combat and movement designers can maintain balance improve performance and encourage players to spend more time in the game. The goal is usually to create an experience that feels immersive enough to be compelling while remaining structured and controlled in ways that support retention progression and community growth.</p>
+                  <div class="buttons-container">
+                    <a class="share-btn" href="mailto:?subject=Check out palecircuit diary" onclick="copySiteInfo(event, this)">⚛</a>
+                  </div>
+                </div>
+                <div id="articles-container">
+                  <div class="article" id="blood-magic" data-title="BLOOD MAGIC." data-url="https://axaxayacatl.github.io/palecircuitdiary/">
+                    <div class="article-content">
+                      <h3>BLOOD MAGIC.</h3>
+                    </div>
+                    <a href="https://axaxayacatl.github.io/palecircuitdiary/" class="thumbnail-link">
+                      <img src="https://i.pinimg.com/originals/df/3d/91/df3d91523bb7fb7d95807969f6ba2852.gif" alt="Thumbnail" class="thumbnail">
+                    </a>
+                    <p>The blood magic skill tree in Dragon Age is ultimately an unrealistic portrayal of blood magic when compared to historical and traditional occult concepts. Rather than treating blood as a symbolic link to vitality, identity, ancestry, or spiritual connection, the games reduce it to a quantifiable fuel source that can be spent directly for magical power, functioning almost like an alternative mana system. Ancient and medieval occult traditions that incorporated blood generally viewed it as a medium of sacrifice, consecration, pacts, or sympathetic connection rather than a universal energy reservoir that automatically amplified magical ability. Ironically, the game's interpretation more closely resembles certain modern esoteric and Left Hand Path theories that emphasize blood as a concentrated vessel of personal power and will, despite Dragon Age presenting blood magic as an ancient and broadly understood practice. This creates a version of blood magic that feels less rooted in historical occultism and more reflective of contemporary occult imagination, where blood is treated as a direct catalyst for empowerment, self-deification, and the transcendence of ordinary limits. As a result, the skill tree succeeds as a fantasy mechanic and narrative device, but it offers a vision of blood magic that is largely detached from the ritual, symbolic, and culturally specific functions blood held within most historical magical traditions. </p>
+                    <div class="buttons-container">
+                      <a class="share-btn" href="mailto:?subject=Check out palecircuit diary" onclick="copySiteInfo(event, this)">⚛</a>
+                    </div>
+                  </div>
+                  <div id="articles-container">
+                    <div class="article" id="input-surface" data-title="INPUT SURFACE." data-url="https://axaxayacatl.github.io/palecircuitdiary/">
+                      <div class="article-content">
+                        <h3>INPUT SURFACE.</h3>
+                      </div>
+                      <a href="https://axaxayacatl.github.io/palecircuitdiary/" class="thumbnail-link">
+                        <img src="https://i.pinimg.com/736x/e2/b6/59/e2b659ac790777fd6aa1af61b634d5df.jpg" alt="Thumbnail" class="thumbnail">
+                      </a>
+                      <p> When I’m gaming, manicures don’t feel like decoration or something external to the session—they sit right inside it, like part of the control surface itself. The gloss, the color, the shape of the nails all become something I notice in passing during idle moments, when my hands are resting on a controller or hovering over keys waiting for the next round to load. There’s a small visual rhythm in it, like seeing motion inside stillness. </p>
+                      <p> The interaction isn’t about whether they help or get in the way, it’s more about how they change the texture of attention. Clicking through menus, adjusting grip, or tapping through loading screens carries this faint visual feedback loop where my hands don’t disappear from the experience. They stay present, slightly reflective, slightly animated by light from the screen. </p>
+                      <p> Over time it becomes part of the pacing of play itself—between matches, between inputs, between moments of focus. The manicure doesn’t interrupt anything; it just sits in the same visual space as the game, sharing the frame for a second before everything moves again. </p>
+                      <div class="buttons-container">
+                        <a class="share-btn" href="mailto:?subject=Check out palecircuit diary" onclick="copySiteInfo(event, this)">⚛</a>
+                      </div>
+                    </div>
+                    <div id="articles-container">
+                      <div class="article" id="disconnect" data-title="DISCONNECT." data-url="https://axaxayacatl.github.io/palecircuitdiary/">
+                        <div class="article-content">
+                          <h3>DISCONNECT.</h3>
+                        </div>
+                        <a href="https://axaxayacatl.github.io/palecircuitdiary/" class="thumbnail-link">
+                          <img src="https://raw.githubusercontent.com/axaxayacatl/palecircuitdiary/refs/heads/main/thumbnails/Ruby.jpg" alt="Thumbnail" class="thumbnail">
+                        </a>
+                        <p>If I had to pin down my gaming “snack” preferences, it’s not really snacks at all, it’s desserts that feel like a full pause in the middle of everything. I don’t want anything I have to constantly reach for or think about while I’m playing, I want something that feels like a deliberate break that happens to sit next to a controller. Dense, fudgy brownies are ideal, with that soft resistance when you bite in and a slightly sticky interior that clings to itself instead of crumbling everywhere. Ice cream also fits perfectly, especially when it’s just soft enough to glide off the spoon with almost no effort, cold and creamy enough that it resets your whole mouth between matches. Even something like cheesecake works because of that smooth, heavy texture that doesn’t demand attention, just a slow, rich bite that feels complete on its own. It’s less about snacking through a session and more about having something indulgent nearby that you return to between games, when the screen is quiet and everything else drops away for a second.</p>
+                        <div class="buttons-container">
+                          <a class="share-btn" href="mailto:?subject=Check out palecircuit diary" onclick="copySiteInfo(event, this)">⚛</a>
+                        </div>
+                      </div>
+                      <div id="articles-container">
+                        <div class="article" id="the-longsword" data-title="THE LONGSWORD." data-url="https://axaxayacatl.github.io/palecircuitdiary/">
+                          <div class="article-content">
+                            <h3>THE LONGSWORD.</h3>
+                          </div>
+                          <a href="https://axaxayacatl.github.io/palecircuitdiary/" class="thumbnail-link">
+                            <img src="https://raw.githubusercontent.com/axaxayacatl/palecircuitdiary/refs/heads/main/thumbnails/027535c6cba5f57d1134a70157a68f9c.jpg" alt="Thumbnail" class="thumbnail">
+                          </a>
+                          <p>Sword physics in video games are often inaccurate because developers prioritize gameplay, spectacle, and responsiveness over realistic weapon behavior. In reality, swords have weight distribution, momentum, and limitations that affect how quickly they can be swung, redirected, or stopped. Many games allow characters to perform rapid combinations of attacks with oversized weapons that would be physically exhausting or impossible in real combat. Blades frequently pass through armor, shields, or other weapons with little resistance, ignoring the complex interactions of force, material strength, and edge alignment. Additionally, games often exaggerate the damage swords can inflict, depicting clean cuts through metal or thick objects that real historical weapons were never designed to slice through. These simplifications create a more exciting and accessible experience, but they result in combat systems that bear only a loose resemblance to the physics of actual swordsmanship.</p>
+                          <p>Historical swordsmanship also demands extensive training to achieve competence, making it impractical compared to simpler and more accessible weapons. From a spectator's perspective, many techniques can appear repetitive or difficult to appreciate without specialized knowledge, reducing the entertainment value that popular media often associates with sword combat.</p>
+                          <div class="buttons-container">
+                            <a class="share-btn" href="mailto:?subject=Check out palecircuit diary" onclick="copySiteInfo(event, this)">⚛</a>
+                          </div>
+                        </div>
+                        <div id="articles-container">
+                          <div class="article" id="companions" data-title="COMPANIONS." data-url="https://axaxayacatl.github.io/palecircuitdiary/">
+                            <div class="article-content">
+                              <h3>COMPANIONS.</h3>
+                            </div>
+                            <a href="https://axaxayacatl.github.io/palecircuitdiary/" class="thumbnail-link">
+                              <img src="https://raw.githubusercontent.com/axaxayacatl/palecircuitdiary/refs/heads/main/thumbnails/7c47c54aaada8335e99d495118166b1a.gif" alt="Thumbnail" class="thumbnail">
+                            </a>
+                            <p>The visual language of magic in MMORPGs often resembles the symbolic intensity of Enochian gnosis. Spell circles, radiant sigils, impossible architecture, floating alphabets, and luminous geometric effects mirror the way consciousness is described during altered occult states. The Enochian current presents reality as a field of vibrating symbols and living language where perception itself becomes ritual technology. In many fantasy games, magical interfaces unconsciously reproduce this structure through glowing runic systems, dimensional portals, celestial machinery, and animated glyph matrices. The presence of cacodemonic imagery, distorted angelic forms, and synthetic hieroglyphic fonts reflects a deeper archetypal memory embedded within digital aesthetics. Enochian lettering carries a sense of alien divinity that modern visual design repeatedly returns to because it evokes contact with something beyond ordinary cognition. MMORPG magic effects therefore function like simulated gnosis, transforming the screen into a ritual surface where symbolic light, coded language, and archetypal power merge into an interactive occult vision.</p>
+                            <div class="buttons-container">
+                              <a class="share-btn" href="mailto:?subject=Check out palecircuit diary" onclick="copySiteInfo(event, this)">⚛</a>
+                            </div>
+                          </div>
+                          <div id="articles-container">
+                            <div class="article" id="conglomerate-procedure" data-title="CONGLOMERATE PROCEDURE." data-url="https://axaxayacatl.github.io/palecircuitdiary/">
+                              <div class="article-content">
+                                <h3>CONGLOMERATE PROCEDURE.</h3>
+                              </div>
+                              <a href="https://axaxayacatl.github.io/palecircuitdiary/" class="thumbnail-link">
+                                <img src="https://raw.githubusercontent.com/axaxayacatl/palecircuitdiary/refs/heads/main/thumbnails/68e30c98e0c864a77c16a278a49bb230.gif" alt="Thumbnail" class="thumbnail">
+                              </a>
+                              <p>The early Roller Coaster Tycoon games accidentally trained an entire generation of players to think like obsessive investigators, forcing them to analyze tiny details, hidden systems, and unpredictable human behavior with almost clinical intensity. Every guest in the park carried information that could be tracked and exploited, from where they walked to what they complained about, what rides they preferred, and how long they stayed trapped in broken queue lines. Players learned to monitor patterns, identify weak points, manipulate crowd flow, and isolate variables through endless experimentation, turning amusement parks into giant living spreadsheets of surveillance and control. The games rewarded constant observation and punished emotional thinking, teaching players to detach from the simulated people wandering through the park and instead view them as data points whose reactions could be predicted, redirected, or sacrificed for profit.</p>
+                              <p>That atmosphere created a strange kind of low level sadism that became infamous among players, especially because the games quietly allowed cruelty without directly encouraging it. People discovered they could strand guests on isolated islands, trap them in endless mazes, launch unsafe coasters, or remove paths while crowds panicked, all while the simulation continued tracking every complaint and emotional response in detail. In a weird way, this resembled the mentality behind learning OSINT, where progress comes from patiently gathering fragments of information, understanding behavioral patterns, and treating systems as puzzles to be dismantled piece by piece. Roller Coaster Tycoon disguised that mindset beneath bright colors and cheerful music, but underneath the cartoon exterior was a management simulator that rewarded control, observation, and emotional distance with unsettling efficiency.</p>
+                              <div class="buttons-container">
+                                <a class="share-btn" href="mailto:?subject=Check out palecircuit diary" onclick="copySiteInfo(event, this)">⚛</a>
+                              </div>
+                            </div>
+                            <div id="articles-container">
+                              <div class="article" id="monogamous." data-title="MONOGAMOUS." data-url="https://axaxayacatl.github.io/palecircuitdiary/">
+                                <div class="article-content">
+                                  <h3>MONOGAMOUS.</h3>
+                                </div>
+                                <a href="https://axaxayacatl.github.io/palecircuitdiary/" class="thumbnail-link">
+                                  <img src="https://raw.githubusercontent.com/axaxayacatl/palecircuitdiary/refs/heads/main/thumbnails/1190f559a5ab119e8f6d51018ec8db99.jpg" alt="Thumbnail" class="thumbnail">
+                                </a>
+                                <p>Marriage systems in video games are usually built around simple one to one relationship mechanics because they are easier to code, balance, write, and present to players, with developers creating dialogue trees, affection meters, scripted events, jealousy triggers, inheritance systems, and companion interactions that all assume a single spouse. Polygamous systems, while historically common across many cultures and time periods, are rarely included because they dramatically increase the amount of writing, character scripting, branching interactions, and social simulation required, since every additional spouse creates exponential combinations of relationships, rivalries, household management, and narrative consequences. Developers also avoid them due to modern audience expectations, ratings concerns, cultural controversy, and the desire to keep romance mechanics straightforward rather than politically or morally debated, especially in mainstream Western markets where monogamy is treated as the default social norm. Some strategy and simulation games have experimented with more flexible systems, but most studios prioritize simplicity, development cost, and broad market appeal over historical accuracy or deeper social complexity.</p>
+                                <div class="buttons-container">
+                                  <a class="share-btn" href="mailto:?subject=Check out palecircuit diary" onclick="copySiteInfo(event, this)">⚛</a>
+                                </div>
+                              </div>
+                              <div id="articles-container">
+                                <div class="article" id="alchemist" data-title="ALCHEMIST." data-url="https://axaxayacatl.github.io/palecircuitdiary/">
+                                  <div class="article-content">
+                                    <h3>ALCHEMIST.</h3>
+                                  </div>
+                                  <a href="https://axaxayacatl.github.io/palecircuitdiary/" class="thumbnail-link">
+                                    <img src="https://raw.githubusercontent.com/axaxayacatl/palecircuitdiary/refs/heads/main/thumbnails/f896cd74f580dfd4c09fe38d04fa05e3.jpg" alt="Thumbnail" class="thumbnail">
+                                  </a>
+                                  <p>Potions in gaming function as consumable resource systems that restore health, stamina, mana, or remove status effects. They provide discrete state changes through a single input action, reducing multiple gameplay variables into a standardized recovery mechanic. From a design perspective, potions act as an abstraction layer between player performance and system feedback, enabling controlled recovery rates without requiring procedural healing mechanics. In interface terms, they are typically implemented as inventory items, quick slots, or radial menu options, supporting rapid access during real time or turn based play. Their presence simplifies balancing by allowing designers to tune encounter difficulty around expected resource availability. They also serve as a regulatory mechanism for pacing, creating predictable intervals of recovery that interact with combat, exploration, and attrition systems.</p>
+                                  <div class="buttons-container">
+                                    <a class="share-btn" href="mailto:?subject=Check out palecircuit diary" onclick="copySiteInfo(event, this)">⚛</a>
+                                  </div>
+                                </div>
+                                <div id="articles-container">
+                                  <div class="article" id="why-caffeine" data-title="WHY CAFFEINE?" data-url="https://axaxayacatl.github.io/palecircuitdiary/">
+                                    <div class="article-content">
+                                      <h3>WHY CAFFEINE?</h3>
+                                    </div>
+                                    <a href="https://axaxayacatl.github.io/palecircuitdiary/" class="thumbnail-link">
+                                      <img src="https://raw.githubusercontent.com/axaxayacatl/palecircuitdiary/refs/heads/main/thumbnails/338c496589d531163bbdda1963faf321.gif" alt="Thumbnail" class="thumbnail">
+                                    </a>
+                                    <p>Caffeine chewables and supplements are heavily marketed toward gamers because they fit the culture and demands of competitive gaming. Unlike coffee or energy drinks, chewables are fast, portable, and easy to consume during long matches without interrupting gameplay. Companies also market them using esports aesthetics, streamers, and performance-focused language to connect caffeine with reaction time, focus, and endurance. This strategy appeals especially to younger audiences who view gaming as both entertainment and competition. By presenting these products as tools for mental performance rather than just energy boosts, brands tap into gamers’ desire to improve skill and stay alert for extended periods.</p>
+                                    <p>I personally dislike this type of marketing because it normalizes heavy caffeine use in spaces that are already highly competitive and stressful. Many gaming audiences are teenagers or young adults who may not fully understand the health risks of excessive caffeine consumption, including anxiety, sleep problems, and dependence. The advertisements often make these supplements seem harmless or necessary for success, which can pressure gamers into believing they need stimulants to perform well. Instead of promoting healthier habits like rest and balance, the marketing encourages constant stimulation and longer hours of screen time.</p>
+                                    <div class="buttons-container">
+                                      <a class="share-btn" href="mailto:?subject=Check out palecircuit diary" onclick="copySiteInfo(event, this)">⚛</a>
+                                    </div>
+                                  </div>
+                                  <div id="articles-container">
+                                    <div class="article" id="back-of-the-deck" data-title="BACK OF THE DECK." data-url="https://axaxayacatl.github.io/palecircuitdiary/">
+                                      <div class="article-content">
+                                        <h3>BACK OF THE DECK.</h3>
+                                      </div>
+                                      <a href="https://axaxayacatl.github.io/palecircuitdiary/" class="thumbnail-link">
+                                        <img src="https://raw.githubusercontent.com/axaxayacatl/palecircuitdiary/refs/heads/main/thumbnails/b83270c58c6855ab98a78e869343228e.gif" alt="Thumbnail" class="thumbnail">
+                                      </a>
+                                      <p>Modern online card games like Magic: The Gathering Arena increasingly mistake obscurity for depth. Instead of creating beauty that naturally draws people in, they bury themselves beneath excessive calculation and complexity, as if being difficult to understand makes them more meaningful. But entertainment only truly connects when it communicates something human and immediate. Mystery can attract people, but deliberate alienation pushes them away. In trying so hard to appear sophisticated, many modern games lose the elegance and emotional clarity that once made card games feel magical.</p>
+                                      <div class="buttons-container">
+                                        <a class="share-btn" href="mailto:?subject=Check out palecircuit diary" onclick="copySiteInfo(event, this)">⚛</a>
+                                      </div>
+                                    </div>
+                                    <div id="articles-container">
+                                      <div class="article" id="chips" data-title="CHIPS." data-url="https://axaxayacatl.github.io/palecircuitdiary/">
+                                        <div class="article-content">
+                                          <h3>CHIPS.</h3>
+                                        </div>
+                                        <a href="https://axaxayacatl.github.io/palecircuitdiary/" class="thumbnail-link">
+                                          <img src="https://raw.githubusercontent.com/axaxayacatl/palecircuitdiary/refs/heads/main/thumbnails/0e4d318aca7d7dcc12685016b3ab266a.jpg" alt="Thumbnail" class="thumbnail">
+                                        </a>
+                                        <p>The modern crossover between gaming and snack marketing has become so routine that nobody stops to ask whether any of it actually makes sense. A grim post apocalyptic shooter ends up on a neon colored potato chip bag, a fantasy RPG hero sells barbecue flavored crisps, and suddenly every major release is paired with some chemically enhanced “limited edition” snack that has nothing to do with the actual experience of playing the game. The logic is pure visibility. Put recognizable characters on as many disposable surfaces as possible and hope brand familiarity translates into engagement. The result is a strange disconnect where gaming culture is treated less like an artistic medium and more like a mascot licensing operation. A better approach would focus on credibility rather than saturation. Instead of slapping franchises onto random junk food, publishers could build promotions around authentic player experience by supporting local tournaments, funding mod communities, creating healthier late session food partnerships, improving accessibility initiatives, or designing products that genuinely complement long form play rather than interrupt it with sugar crashes and novelty branding. The goal should not be maximum exposure at all costs, but a holistic ecosystem where every collaboration strengthens the identity and values of the game itself, because in the long run cultural credibility builds loyalty far more effectively than another loud chip bag with a space marine on it ever will.</p>
+                                        <div class="buttons-container">
+                                          <a class="share-btn" href="mailto:?subject=Check out palecircuit diary" onclick="copySiteInfo(event, this)">⚛</a>
+                                        </div>
+                                      </div>
+                                      <div id="articles-container">
+                                        <div class="article" id="swordsmen" data-title="SWORDSMEN." data-url="https://axaxayacatl.github.io/palecircuitdiary/">
+                                          <div class="article-content">
+                                            <h3>SWORDSMEN.</h3>
+                                          </div>
+                                          <a href="https://axaxayacatl.github.io/palecircuitdiary/" class="thumbnail-link">
+                                            <img src="https://raw.githubusercontent.com/axaxayacatl/palecircuitdiary/refs/heads/main/thumbnails/252218fed3f922912db56be60f1f9b36.jpg" alt="Thumbnail" class="thumbnail">
+                                          </a>
+                                          <p>The medieval quest was never about heroism. It was logistical maintenance for a collapsing economy. Kill the rats, clear the road, deliver the grain, stabilize circulation for another cycle. Every kingdom in the role playing game survives through endless outsourced labor performed by a figure that does not sleep, does not age, does not unionize, and never permanently dies. The peasant economy becomes post human the moment the player enters it. Gold appears from nowhere, resources regenerate infinitely, and catastrophe exists only as renewable content. The quest giver mourns famine while standing inside an economy that can produce infinite swords from recycled monster remains. Medieval aesthetics conceal systems of accelerated extraction that no human body could sustain. The player is not a knight moving through feudal society. The player is automated capital wearing armor.</p>
+                                          <div class="buttons-container">
+                                            <a class="share-btn" href="mailto:?subject=Check out palecircuit diary" onclick="copySiteInfo(event, this)">⚛</a>
+                                          </div>
+                                        </div>
+                                        <div id="articles-container">
+                                          <div class="article" id="scared-for-you" data-title="SCARED FOR YOU." data-url="https://axaxayacatl.github.io/palecircuitdiary/">
+                                            <div class="article-content">
+                                              <h3>SCARED FOR YOU.</h3>
+                                            </div>
+                                            <a href="https://axaxayacatl.github.io/palecircuitdiary/" class="thumbnail-link">
+                                              <img src="https://i.pinimg.com/originals/9e/36/4b/9e364bccf07f134177aa75daf5f6f239.gif" alt="Thumbnail" class="thumbnail">
+                                            </a>
+                                            <p>Jump scares in horror games often look like simple design choices from the player’s side, but under the surface they behave like fragile systems built on tight timing and hidden state changes. A single trigger can depend on precise player position, camera angle, audio state, animation timing, and scene loading all lining up correctly. When any of these systems drift out of sync, the scare stops being a controlled moment and becomes a bug that fires too early, too late, or not at all. What feels like a sudden monster reveal is often a chain of event listeners, boolean flags, and collision checks that must resolve in a narrow window without breaking immersion. In that sense, jump scares are less about shock value and more about managing failure modes in real time systems that are constantly close to breaking.</p>
+                                            <div class="buttons-container">
+                                              <a class="share-btn" href="mailto:?subject=Check out palecircuit diary" onclick="copySiteInfo(event, this)">⚛</a>
+                                            </div>
+                                          </div>
+                                          <div id="articles-container">
+                                            <div class="article" id="medic" data-title="MEDIC." data-url="https://axaxayacatl.github.io/palecircuitdiary/">
+                                              <div class="article-content">
+                                                <h3>MEDIC.</h3>
+                                              </div>
+                                              <a href="https://axaxayacatl.github.io/palecircuitdiary/" class="thumbnail-link">
+                                                <img src="https://raw.githubusercontent.com/axaxayacatl/palecircuitdiary/refs/heads/main/thumbnails/8009a773e499113f06966b835df0fe96.jpg" alt="Thumbnail" class="thumbnail">
+                                              </a>
+                                              <p>Medics in video games stand behind the push, while others chase damage and speed. They watch health bars flicker, and try to keep teammates alive as those teammates run back into danger. Their work is often invisible, because prevention does not appear on scoreboards, and survival is not what gets celebrated. Effort gets reduced to numbers that never fully capture what was kept from breaking. In real life, there are no designated healers, and no visible health bars. Health is not a linear meter that moves cleanly from low to high. It shifts in uneven patterns, that are hard to track, moment to moment. So it becomes unclear how to recognize healing, when it is not directly observable or neatly measured.</p>
+                                              <div class="buttons-container">
+                                                <a class="share-btn" href="mailto:?subject=Check out palecircuit diary" onclick="copySiteInfo(event, this)">⚛</a>
+                                              </div>
+                                            </div>
+                                            <div id="articles-container">
+                                              <div class="article" id="can-i-play" data-title="CAN I PLAY?" data-url="https://axaxayacatl.github.io/palecircuitdiary/">
+                                                <div class="article-content">
+                                                  <h3>CAN I PLAY?</h3>
+                                                </div>
+                                                <a href="https://axaxayacatl.github.io/palecircuitdiary/" class="thumbnail-link">
+                                                  <img src="https://raw.githubusercontent.com/axaxayacatl/palecircuitdiary/refs/heads/main/thumbnails/8cd860338b13521b70aeb7beb90b36f8.gif" alt="Thumbnail" class="thumbnail">
+                                                </a>
+                                                <p>Character selection in fighting games can feel detached from the actual process of play. The screen presents a large roster with distinct visual identities, but the differences that matter emerge later through timing, spacing requirements, input precision, and matchup familiarity. A player may choose a character because of animation style or implied personality and then discover the decision mostly changes how much procedural knowledge is required to participate comfortably. Some characters appear to absorb mistakes while others convert minor errors into immediate round loss. The choice happens early but the consequences become legible only after repeated failure states. Over time the selection screen starts resembling a technical sorting process more than an expressive one.</p>
+                                                <div class="buttons-container">
+                                                  <a class="share-btn" href="mailto:?subject=Check out palecircuit diary" onclick="copySiteInfo(event, this)">⚛</a>
+                                                </div>
+                                              </div>
+                                              <div id="articles-container">
+                                                <div class="article" id="blissful-ignorance" data-title="BLISSFUL IGNORANCE." data-url="https://axaxayacatl.github.io/palecircuitdiary/">
+                                                  <div class="article-content">
+                                                    <h3>BLISSFUL IGNORANCE.</h3>
+                                                  </div>
+                                                  <a href="https://axaxayacatl.github.io/palecircuitdiary/" class="thumbnail-link">
+                                                    <img src="https://raw.githubusercontent.com/axaxayacatl/palecircuitdiary/refs/heads/main/thumbnails/dc5254eeca76d6ce0e022b4b66f7c8e0.jpg" alt="Thumbnail" class="thumbnail">
+                                                  </a>
+                                                  <p>Roleplay servers operate as designed social contracts in which players pay not to dominate systems but to be governed by them. The appeal is the presence of structure, expectation, and behavioral continuity. Players enter with the assumption that the world possesses rules beyond mechanical function, including social hierarchy, ritual, consequence, and implied conduct. What is being purchased is not unrestricted agency but participation within an outlined experience. Many game developers approach roleplay as a problem of moderation tools or content systems rather than environmental design. LARP traditions demonstrate forms of wordless coordination that digital spaces rarely study or implement. Physical staging, costume, gesture, silence, and controlled space communicate rules without direct instruction. Online roleplay environments frequently overexplain because they lack confidence in environmental communication. The result is systems that simulate administration instead of culture.</p>
+                                                  <div class="buttons-container">
+                                                    <a class="share-btn" href="mailto:?subject=Check out palecircuit diary" onclick="copySiteInfo(event, this)">⚛</a>
+                                                  </div>
+                                                </div>
+                                                <div id="articles-container">
+                                                  <div class="article" id="state-of-things" data-title="THE STATE OF THINGS." data-url="https://axaxayacatl.github.io/palecircuitdiary/">
+                                                    <div class="article-content">
+                                                      <h3>THE STATE OF THINGS.</h3>
+                                                    </div>
+                                                    <a href="https://axaxayacatl.github.io/palecircuitdiary/" class="thumbnail-link">
+                                                      <img src="https://raw.githubusercontent.com/axaxayacatl/palecircuitdiary/refs/heads/main/thumbnails/credit_%20ghostiekittii.jpg" alt="Thumbnail" class="thumbnail">
+                                                    </a>
+                                                    <p>I’m not optimistic about the gaming industry for indie developers outside of their individual circumstances, and I don’t believe there is any reliable system that consistently carries entry level people into stable footing. Like in many other industries, the pathways exist in theory but are heavily shaped by visibility, timing, and preexisting access rather than pure merit. What bothers me most is the mindset a lot of gamers have toward creators, treating a person’s output like it is the total sum of their worth or credentials, as if what is visible in a storefront or feed is all that defines their legitimacy. That attitude is deeply dismissive to the people actually building within the space, because it ignores the reality that for indie developers their work is their resume, their inventory is their proof, and yet early work is rarely given a fair or consistent chance to be seen or judged on equal footing. That's what makes this circumstance unique, it's the only online creative industry completely decided by individual consumers.</p>
+                                                    <div class="buttons-container">
+                                                      <a class="share-btn" href="mailto:?subject=Check out palecircuit diary" onclick="copySiteInfo(event, this)">⚛</a>
+                                                    </div>
+                                                  </div>
+                                                  <div id="articles-container">
+                                                    <div class="article" id="just-shopping" data-title="JUST SHOPPING." data-url="https://axaxayacatl.github.io/palecircuitdiary/">
+                                                      <div class="article-content">
+                                                        <h3>JUST SHOPPING.</h3>
+                                                      </div>
+                                                      <a href="https://axaxayacatl.github.io/palecircuitdiary/" class="thumbnail-link">
+                                                        <img src="https://raw.githubusercontent.com/axaxayacatl/palecircuitdiary/refs/heads/main/thumbnails/Cinderellife%20Punk%20Lolita%20store.jpg" alt="Thumbnail" class="thumbnail">
+                                                      </a>
+                                                      <p>Dress up games taught me a way of moving through cosmetic systems that feels less like shopping and more like co op hunting and scavenging. Nothing is really accessed in isolation. You learn to follow timing cycles, shared information, and other players’ discoveries to locate items that are often temporary, rotating, or hidden behind event structures. The focus shifts from choosing outfits to tracking where pieces exist, when they appear, and how to secure them before they disappear again or become harder to get.</p>
+                                                      <p>Over time, this creates a logic where style is tied to pursuit. Outfits are built from things that have been actively found rather than passively selected, and the visual result always carries the trace of that process. What matters is not a fixed idea of beauty or aesthetics but the movement through the system itself, where attention, timing, and coordination determine what becomes available to use at all.</p>
+                                                      <p>Because of that, I feel like I’ve learned enough to shop completely on my own in a way that is both intelligent and “ruthless” in the sense of being precise and unsentimental inside the system. I don’t rely on impulse or surface appeal, but on understanding structure, scarcity, and timing, and using that to decide what is actually worth pursuing. It feels like a kind of internalized map of how cosmetic systems work, where I can move through them independently and efficiently, treating each choice as part of a larger pattern rather than a one off decision.</p>
+                                                      <div class="buttons-container">
+                                                        <a class="share-btn" href="mailto:?subject=Check out palecircuit diary" onclick="copySiteInfo(event, this)">⚛</a>
+                                                      </div>
+                                                    </div>
+                                                    <div id="articles-container">
+                                                      <div class="article" id="im-not-an-angel" data-title="I'M NOT AN ANGEL." data-url="https://axaxayacatl.github.io/palecircuitdiary/">
+                                                        <div class="article-content">
+                                                          <h3>I'M NOT AN ANGEL.</h3>
+                                                        </div>
+                                                        <a href="https://axaxayacatl.github.io/palecircuitdiary/" class="thumbnail-link">
+                                                          <img src="https://raw.githubusercontent.com/axaxayacatl/palecircuitdiary/refs/heads/main/thumbnails/3c078809444c3d6c4180c73e10f350f4.jpg" alt="Thumbnail" class="thumbnail">
+                                                        </a>
+                                                        <p>For me, CPU players represent the purest form of gaming. I do not approach games as social spaces or digital hangouts. I approach them as systems to study, pressure test, and eventually internalize. Fighting against another mind has never interested me as much as confronting a machine that exists entirely to sharpen my own reactions and pattern recognition. A good CPU opponent feels almost meditative, an endlessly repeatable puzzle that lets me enter a state of total concentration where instinct, timing, and memory begin to merge. Gaming becomes less about defeating people and more about refining the mind through repetition and adaptation. What I seek from games is not companionship but a heightened state of focus that only sustained mechanical engagement can create.</p>
+                                                        <p>I have never felt any real attachment to multiplayer gaming. It does not anger me or intimidate me, it simply leaves me cold. The appeal people describe has always sounded distant, almost abstract, because the part of games that captures me exists entirely elsewhere. I love the isolation of playing against CPU opponents because it strips the experience down to its essence. No chatter, no social performance, no obligation to participate in someone else’s energy. Just the game itself and the quiet process of learning its logic more deeply over time. There is a kind of purity in that solitude that I have always valued far more than interaction.</p>
+                                                        <div class="buttons-container">
+                                                          <a class="share-btn" href="mailto:?subject=Check out palecircuit diary" onclick="copySiteInfo(event, this)">⚛</a>
+                                                        </div>
+                                                      </div>
+                                                      <div id="articles-container">
+                                                        <div class="article" id="the-decider" data-title="THE DECIDER." data-url="https://axaxayacatl.github.io/palecircuitdiary/">
+                                                          <div class="article-content">
+                                                            <h3>THE DECIDER.</h3>
+                                                          </div>
+                                                          <a href="https://axaxayacatl.github.io/palecircuitdiary/" class="thumbnail-link">
+                                                            <img src="https://raw.githubusercontent.com/axaxayacatl/palecircuitdiary/refs/heads/main/thumbnails/Monsterhunter%20world%20%E3%83%A2%E3%83%B3%E3%82%B9%E3%82%BF%E3%83%BC%E3%83%8F%E3%83%B3%E3%82%BF%E3%83%BC%E3%83%AF%E3%83%BC%E3%83%AB%E3%83%89.jpg" alt="Thumbnail" class="thumbnail">
+                                                          </a>
+                                                          <p>The tables are always overloaded. Blistered meat stacked higher than necessary. Broth still throwing steam into the air. Butter dissolving into bread before it even reaches the plate. Fat glistens under direct heat. Bone marrow splits open cleanly. Rice, noodles, roasted vegetables, whole fish, thick cuts of steak. Everything arrives in quantities that imply the work beforehand was serious enough to justify it. Monster Hunter and Final Fantasy XV understand food as part of the reward structure itself. The meal is not decoration around the hunt. It is the confirmation that the hunt produced something worth feeling.</p>
+                                                          <p>That perspective stayed with me because most real world eating has been reduced into maintenance language. Efficient. Fast. Optimized. Forgettable. These games reject that completely. They treat eating as a visible part of recovery and satisfaction. The larger the objective, the more substantial the meal should become. Small rewards after difficult work create a mismatch people eventually stop noticing. But these games never allow that disconnect. They insist that effort should end in visible abundance, in heat, weight, salt, fullness. You are not truly winning when the fight ends. You are winning when you finally sit down and eat enough for the victory to register in your body.</p>
+                                                          <div class="buttons-container">
+                                                            <a class="share-btn" href="mailto:?subject=Check out palecircuit diary" onclick="copySiteInfo(event, this)">⚛</a>
+                                                          </div>
+                                                        </div>
+                                                        <div id="articles-container">
+                                                          <div class="article" id="zero-compliment" data-title="ZERO COMPLIMENTS." data-url="https://axaxayacatl.github.io/palecircuitdiary/">
+                                                            <div class="article-content">
+                                                              <h3>ZERO COMPLIMENTS.</h3>
+                                                            </div>
+                                                            <a href="https://axaxayacatl.github.io/palecircuitdiary/" class="thumbnail-link">
+                                                              <img src="https://i.pinimg.com/originals/61/d1/14/61d114e7c1ea3067c1db301364acb592.gif" alt="Thumbnail" class="thumbnail">
+                                                            </a>
+                                                            <p>I do not rejoice over the online virtual game jam culture found on platforms like itch.io because despite presenting themselves as open creative celebrations, they often feel built around an invisible social structure that rewards familiarity, timing, and belonging over genuine openness. These events are constantly described as communal and welcoming, yet many of them revolve around established circles, recurring personalities, or the preferences of the founders themselves, creating an atmosphere where participation appears public while recognition remains selective. The culture encourages the image of collective creativity, but underneath that image there is frequently an unspoken expectation that participants already understand the social language, trends, and internal dynamics of the group organizing the event. Schedules, themes, judging styles, and promotional attention often seem tailored toward people already connected to those spaces, making outsiders feel less like contributors and more like temporary visitors trying to enter a room that was already socially arranged before they arrived.</p>
+                                                            <div class="buttons-container">
+                                                              <a class="share-btn" href="mailto:?subject=Check out palecircuit diary" onclick="copySiteInfo(event, this)">⚛</a>
+                                                            </div>
+                                                          </div>
+                                                          <div id="articles-container">
+                                                            <div class="article" id="summoning" data-title="SUMMONING." data-url="https://axaxayacatl.github.io/palecircuitdiary/">
+                                                              <div class="article-content">
+                                                                <h3>SUMMONING.</h3>
+                                                              </div>
+                                                              <a href="https://axaxayacatl.github.io/palecircuitdiary/" class="thumbnail-link">
+                                                                <img src="https://raw.githubusercontent.com/axaxayacatl/palecircuitdiary/refs/heads/main/thumbnails/%23bayonetta.gif" alt="Thumbnail" class="thumbnail">
+                                                              </a>
+                                                              <p>The way most fantasy games use mana prevents spell systems from feeling truly magical. By turning magical energy into a simple, refillable meter, games make casting predictable and controlled, which stops spells from interacting in surprising or complex ways. In reality, occultists describe magic as chaotic, intense, and often fueled by strong emotion or rage, but almost no game communicates that feeling through its systems. Systems that could allow spells to interact with each other or the environment are limited because every action is tied to a fixed resource rather than the energy or consequences of the spell itself. Games like Bayonetta show the fury and intensity of action visually, yet almost no game uses the mana system to express the emotional and spiritual weight of magic. The result is that magic in games feels mechanical, safe, and disconnected from its true power.</p>
+                                                              <div class="buttons-container">
+                                                                <a class="share-btn" href="mailto:?subject=Check out palecircuit diary" onclick="copySiteInfo(event, this)">⚛</a>
+                                                              </div>
+                                                            </div>
+                                                            <div id="articles-container">
+                                                              <div class="article" id="candy" data-title="IT'S CANDY." data-url="https://axaxayacatl.github.io/palecircuitdiary/">
+                                                                <div class="article-content">
+                                                                  <h3>IT'S CANDY.</h3>
+                                                                </div>
+                                                                <a href="https://axaxayacatl.github.io/palecircuitdiary/" class="thumbnail-link">
+                                                                  <img src="https://raw.githubusercontent.com/axaxayacatl/palecircuitdiary/refs/heads/main/thumbnails/8af44184f80ec0049f43542b3963d788.gif" alt="Thumbnail" class="thumbnail">
+                                                                </a>
+                                                                <p>Suda51’s work rejects restraint at every level of presentation and storytelling. Games like Lollipop Chainsaw and No More Heroes do not present themselves as polished, neutral products but as overflowing constructions of color, noise, violence, absurd humor, and emotional volatility that refuse to be normalized into safe design language. The interfaces feel invasive and expressive rather than functional, the slasherfest narratives move with deliberate tonal instability, and the entire experience behaves like a direct, unfiltered artifact of creative intent that prioritizes intensity over restraint.</p>
+                                                                <p>On the shelves of physical game stores, these titles occupy a different visual logic from surrounding releases. Where most cases communicate clarity, genre stability, and marketable familiarity, Suda51’s games broadcast disruption at first glance through saturated imagery, fragmented composition, and an almost confrontational sense of personality. They do not blend into the standardized grid of predictable cover art; instead they interrupt it, pulling attention through visual excess and tonal contradiction. Even as physical retail presence declines and these kinds of bold, singular releases become less common, their identity persists precisely because they resist assimilation into uniform industry aesthetics, standing apart as artifacts that feel intentionally unfit for quiet disappearance.</p>
+                                                                <div class="buttons-container">
+                                                                  <a class="share-btn" href="mailto:?subject=Check out palecircuit diary" onclick="copySiteInfo(event, this)">⚛</a>
+                                                                </div>
+                                                              </div>
+                                                              <div id="articles-container">
+                                                                <div class="article" id="temperance" data-title="TEMPERANCE." data-url="https://axaxayacatl.github.io/palecircuitdiary/">
+                                                                  <div class="article-content">
+                                                                    <h3>TEMPERANCE.</h3>
+                                                                  </div>
+                                                                  <a href="https://axaxayacatl.github.io/palecircuitdiary/" class="thumbnail-link">
+                                                                    <img src="https://raw.githubusercontent.com/axaxayacatl/palecircuitdiary/refs/heads/main/thumbnails/19a8cfc10a1d4c3aaa29ead4788cc0aa.jpg" alt="Thumbnail" class="thumbnail">
+                                                                  </a>
+                                                                  <p>A quiet shift toward playing games sober, especially visually intense ones like LSD: Dream Emulator and NiGHTS: Journey into Dreams. The experience feels sharper this way, like the visuals actually have room to land instead of slipping past. Strange environments, floating transitions, and unstable logic feel more noticeable, easier to stay with instead of chase. There is a growing awareness of how sound, color, and movement affect attention in real time, in a way that resembles biohacking through attention itself rather than chemicals or devices. Not framed as a theory, more as something noticed while playing, where perception becomes the main thing being observed.</p>
+                                                                  <div class="buttons-container">
+                                                                    <a class="share-btn" href="mailto:?subject=Check out palecircuit diary" onclick="copySiteInfo(event, this)">⚛</a>
+                                                                  </div>
+                                                                </div>
+                                                                <div id="articles-container">
+                                                                  <div class="article" id="organized-play" data-title="ORGANIZED PLAY." data-url="https://axaxayacatl.github.io/palecircuitdiary/">
+                                                                    <div class="article-content">
+                                                                      <h3>ORGANIZED PLAY.</h3>
+                                                                    </div>
+                                                                    <a href="https://axaxayacatl.github.io/palecircuitdiary/" class="thumbnail-link">
+                                                                      <img src="https://raw.githubusercontent.com/axaxayacatl/palecircuitdiary/refs/heads/main/thumbnails/f3eb97c207bd0021b3fa520db5a2f993.gif" alt="Thumbnail" class="thumbnail">
+                                                                    </a>
+                                                                    <p>I have always been drawn to competitive games that rely on timing, adaptation, and mechanical precision. Tekken and Street Fighter are simply the clearest examples of that interest. What appeals to me is the structure of the games themselves and the environment surrounding organized play. Arcade cabinets remain the most satisfying format because they create a focused physical setting with immediate feedback and clear social boundaries. Online play is functional and convenient, but I have little interest in serious tournament participation. In competitive settings, excessive conscious self monitoring can interfere with procedural memory, which is the system responsible for automatic execution of practiced actions. Once the brain shifts from instinctive performance into deliberate correction, reaction speed and accuracy often decline, particularly in games that depend on frame level timing and rapid decision making.</p>
+                                                                    <p>I also avoid informal gaming events held inside private homes. Public venues create clearer expectations, visible structure, and more predictable boundaries, which makes participation substantially easier and more comfortable. Arcades and convention spaces feel designed around the activity itself, while private environments often shift attention away from the games and toward social navigation. My interest has always been centered on the systems, mechanics, and atmosphere created by organized public play rather than highly personal or loosely structured gatherings.</p>
+                                                                    <div class="buttons-container">
+                                                                      <a class="share-btn" href="mailto:?subject=Check out palecircuit diary" onclick="copySiteInfo(event, this)">⚛</a>
+                                                                    </div>
+                                                                  </div>
+                                                                  <div id="articles-container">
+                                                                    <div class="article" id="divination" data-title="DIVINATION." data-url="https://axaxayacatl.github.io/palecircuitdiary/">
+                                                                      <div class="article-content">
+                                                                        <h3>DIVINATION.</h3>
+                                                                      </div>
+                                                                      <a href="https://axaxayacatl.github.io/palecircuitdiary/" class="thumbnail-link">
+                                                                        <img src="https://raw.githubusercontent.com/axaxayacatl/palecircuitdiary/refs/heads/main/thumbnails/Serah%20farron%20wallpaper.jpg" alt="Thumbnail" class="thumbnail">
+                                                                      </a>
+                                                                      <p>Games like NieR: Automata feel like a divine escalation of religious experience inside digital culture, where transcendence no longer arrives through static scripture but through systems, rendering, music, repetition, and machine memory. The spiritual force of these games is inseparable from the acceleration of hardware itself. Graphics cards become instruments of revelation, pushing light, movement, scale, and atmosphere into forms intense enough to alter emotional consciousness. In the age of spiritual machines, divinity correlates with computational power because the ability to render complexity also expands the ability to communicate metaphysical feeling. These games do not simply tell stories. They construct environments capable of producing states of awe, grief, alienation, devotion, and existential rupture with a precision older forms cannot always reach.</p>
+                                                                      <p>At the same time, the market determines which forms of transcendence survive. Video games now contain the potential to elevate consciousness or flatten it entirely depending on what systems are funded, circulated, and purchased at scale. Advanced storytelling and avant garde ideas already exist in gaming, but they are increasingly difficult to sustain because they demand technical ambition, artistic risk, and hardware capable of carrying them. The more spiritually or philosophically ambitious a game becomes, the less accessible it often is, whether economically, culturally, or technologically. Many of the most transformative works already exist at the edges of visibility, difficult to run, difficult to finance, difficult to preserve. The future of digital art may depend on whether players continue choosing experiences that challenge perception rather than systems designed only for repetition and consumption.</p>
+                                                                      <div class="buttons-container">
+                                                                        <a class="share-btn" href="mailto:?subject=Check out palecircuit diary" onclick="copySiteInfo(event, this)">⚛</a>
+                                                                      </div>
+                                                                    </div>
+                                                                    <div id="articles-container">
+                                                                      <div class="article" id="blessingsbe" data-title="BLESSINGS BE." data-url="https://axaxayacatl.github.io/palecircuitdiary/">
+                                                                        <div class="article-content">
+                                                                          <h3>BLESSINGS BE.</h3>
+                                                                        </div>
+                                                                        <a href="https://axaxayacatl.github.io/palecircuitdiary/" class="thumbnail-link">
+                                                                          <img src="https://raw.githubusercontent.com/axaxayacatl/palecircuitdiary/refs/heads/main/thumbnails/08f300ffe9b701935d9c6033bbd2d909.jpg" alt="Thumbnail" class="thumbnail">
+                                                                        </a>
+                                                                        <p>In Harvest Moon: Animal Parade, I loved how slowly love could form. There were so many people to choose from, and none of them felt instantly attainable. You spent long periods simply existing near someone before anything romantic fully emerged, and that slowness made affection feel deeper to me. I especially loved the divine marriage candidates because there was something distant and gentle about them that made devotion feel almost unreal in the best way. Love felt calm there. It felt like being emotionally accompanied over time instead of quickly rewarded.</p>
+                                                                        <p>What made the marriage system difficult for me was how much the pressure of farming began to shape the relationship itself. I understand the kind of experience the game is trying to create, but I hated feeling exhausted by daily tasks and then carrying that feeling toward the person I loved most. I did not want to think about a partner through labor, usefulness, or efficiency. Especially with a divine partner, it felt painful to imagine love existing inside that kind of constant maintenance. The romance stopped feeling comforting once affection became connected to productivity. I wanted love to remain emotionally generous and present, not something weakened by the demands of work.</p>
+                                                                        <div class="buttons-container">
+                                                                          <a class="share-btn" href="mailto:?subject=Check out palecircuit diary" onclick="copySiteInfo(event, this)">⚛</a>
+                                                                        </div>
+                                                                      </div>
+                                                                      <div id="articles-container">
+                                                                        <div class="article" id="armor" data-title="ARMOR." data-url="https://axaxayacatl.github.io/palecircuitdiary/">
+                                                                          <div class="article-content">
+                                                                            <h3>ARMOR.</h3>
+                                                                          </div>
+                                                                          <a href="https://axaxayacatl.github.io/palecircuitdiary/" class="thumbnail-link">
+                                                                            <img src="https://raw.githubusercontent.com/axaxayacatl/palecircuitdiary/refs/heads/main/thumbnails/6e275324704201a0d81d3ee70b580abe.gif" alt="Thumbnail" class="thumbnail">
+                                                                          </a>
+                                                                          <p>Adornment awakens something instinctive in me, a kind of charged self possession that settles in the body like clarity. It is the feeling of standing inside both danger and beauty at once, where metal against skin or ornament against flesh becomes a single language of presence. I like the way violence and sensuality can exist in the same field without canceling each other, not as extremes in conflict but as shared intensity. There is a calm in that fullness, in being visibly composed and yet unmistakably alive with force.</p>
+                                                                          <p>Demure or humble do not describe where I feel most myself, not as rejection of them, but simply because they do not contain this particular volume of experience. I want an intimate hostile gnosis of language that stays close to sensation, where beauty does not have to be softened and desire does not have to be reduced. Adornment becomes a way of thinking through the body, all gleam and structure and deliberate presence. It feels like recognition rather than performance, a way of existing that is precise, unrestrained, and fully aware of its own intensity.</p>
+                                                                          <div class="buttons-container">
+                                                                            <a class="share-btn" href="mailto:?subject=Check out palecircuit diary" onclick="copySiteInfo(event, this)">⚛</a>
+                                                                          </div>
+                                                                        </div>
+                                                                        <div id="articles-container">
+                                                                          <div class="article" id="deliberate" data-title="DELIBERATE." data-url="https://axaxayacatl.github.io/palecircuitdiary/">
+                                                                            <div class="article-content">
+                                                                              <h3>DELIBERATE.</h3>
+                                                                            </div>
+                                                                            <a href="https://axaxayacatl.github.io/palecircuitdiary/" class="thumbnail-link">
+                                                                              <img src="https://raw.githubusercontent.com/axaxayacatl/palecircuitdiary/refs/heads/main/thumbnails/65841db6ccbdf9f905af2c4d484c1f2c.jpg" alt="Thumbnail" class="thumbnail">
+                                                                            </a>
+                                                                            <p>There is a quiet rhythm to life that reveals itself in the smallest actions. Tending plants, kneading dough, weaving fibers, and arranging spaces demands presence, attention, and care. Each day folds into the next through repeated gestures that mark time more clearly than a calendar ever could. In the corners of virtual worlds such as Mabinogi, one can see the echo of this order, the subtle satisfaction of watching growth, of knowing that effort accumulates into form and usefulness. It is not excitement that sustains the day, but the precision of small acts and the patience they require.</p>
+                                                                            <p>The structure of these activities draws the mind inward while connecting it outward. The pacing of chores, the layering of responsibilities, and the careful tending of what is alive or useful create a sense of home built from repetition and attention. Watching how others approach the same tasks, sharing methods or strategies, adds a quiet companionship that feels intentional and measured. Life in this pattern is shaped not by grand gestures but by the accumulation of small, deliberate acts, by the attentive care of time, and by the satisfaction found in work completed well and observed closely.</p>
+                                                                            <div class="buttons-container">
+                                                                              <a class="share-btn" href="mailto:?subject=Check out palecircuit diary" onclick="copySiteInfo(event, this)">⚛</a>
+                                                                            </div>
+                                                                          </div>
+                                                                          <div id="articles-container">
+                                                                            <div class="article" id="seen" data-title="SEEN." data-url="https://axaxayacatl.github.io/palecircuitdiary/">
+                                                                              <div class="article-content">
+                                                                                <h3>SEEN.</h3>
+                                                                              </div>
+                                                                              <a href="https://axaxayacatl.github.io/palecircuitdiary/" class="thumbnail-link">
+                                                                                <img src="https://raw.githubusercontent.com/axaxayacatl/palecircuitdiary/refs/heads/main/thumbnails/57e5c272b488412e9ba13cb37d3c6933.gif" alt="Thumbnail" class="thumbnail">
+                                                                              </a>
+                                                                              <p>I don’t enjoy crane games at all. I enjoyed playing them in a Japanese mall alongside the gatcha machines, just to realize I love telling that story when someone saw that doll and how absurdly close I came to grabbing it, even though I knew I probably wouldn’t. That’s the only part I like of them. The stories and people breaking down their strategies, the small triumphs, the little rituals, the way someone’s eyes light up while explaining why they always aim for the corner first. I hate carrying change.</p>
+                                                                              <p>The thrill isn’t in the catch, it’s in the telling, in how a small, silly moment becomes something worth remembering.</p>
+                                                                              <div class="buttons-container">
+                                                                                <a class="share-btn" href="mailto:?subject=Check out palecircuit diary" onclick="copySiteInfo(event, this)">⚛</a>
+                                                                              </div>
+                                                                            </div>
+                                                                            <div id="articles-container">
+                                                                              <div class="article" id="assault-games" data-title="ASSAULT IN GAMES." data-url="https://axaxayacatl.github.io/palecircuitdiary/">
+                                                                                <div class="article-content">
+                                                                                  <h3>ASSAULT IN GAMES.</h3>
+                                                                                </div>
+                                                                                <a href="https://axaxayacatl.github.io/palecircuitdiary/" class="thumbnail-link">
+                                                                                  <img src="https://raw.githubusercontent.com/axaxayacatl/palecircuitdiary/refs/heads/main/thumbnails/c981cecb6aa58abdd1d819c7ef39b417.gif" alt="Thumbnail" class="thumbnail">
+                                                                                </a>
+                                                                                <p>When it comes to video games I don't want random violence of any nature. If there is assault, utilize the gameplay and visuals to incorporate it completely. If there is violence, then it should be a violent story. Spare me my feelings. The M symbol rating on the back of every video game is beautiful.</p>
+                                                                                <div class="buttons-container">
+                                                                                  <a class="share-btn" href="mailto:?subject=Check out palecircuit diary" onclick="copySiteInfo(event, this)">⚛</a>
+                                                                                </div>
+                                                                              </div>
+                                                                              <div id="articles-container">
+                                                                                <div class="article" id="moments-aligned" data-title="MOMENTS ALIGNED." data-url="https://axaxayacatl.github.io/palecircuitdiary/">
+                                                                                  <div class="article-content">
+                                                                                    <h3>MOMENTS ALIGNED.</h3>
+                                                                                  </div>
+                                                                                  <a href="https://axaxayacatl.github.io/palecircuitdiary/" class="thumbnail-link">
+                                                                                    <img src="https://raw.githubusercontent.com/axaxayacatl/palecircuitdiary/refs/heads/main/thumbnails/858897dd79c111cf77a2b850a4ce8eba.jpg" alt="Thumbnail" class="thumbnail">
+                                                                                  </a>
+                                                                                  <p>Playing rhythm games has surprisingly sharpened my concentration, training me to stay focused on precise timing and complex patterns. Each level demanded attention to detail, quick reflexes, and the ability to anticipate beats, which naturally carried over to my guitar practice. I found that my sense of timing improved, my finger coordination became smoother, and I could follow intricate musical passages with greater ease. By treating rhythm games as a fun form of mental exercise, I unknowingly built the same skills that make a guitarist precise and expressive, turning what started as entertainment into a tool for musical growth.</p>
+                                                                                  <div class="buttons-container">
+                                                                                    <a class="share-btn" href="mailto:?subject=Check out palecircuit diary" onclick="copySiteInfo(event, this)">⚛</a>
+                                                                                  </div>
+                                                                                </div>
+                                                                                <div id="articles-container">
+                                                                                  <div class="article" id="malice-online" data-title="A LACK OF MALICE ONLINE." data-url="https://axaxayacatl.github.io/palecircuitdiary/">
+                                                                                    <div class="article-content">
+                                                                                      <h3>A LACK OF MALICE ONLINE.</h3>
+                                                                                    </div>
+                                                                                    <a href="https://axaxayacatl.github.io/palecircuitdiary/" class="thumbnail-link">
+                                                                                      <img src="https://raw.githubusercontent.com/axaxayacatl/palecircuitdiary/refs/heads/main/thumbnails/60440e7511714cfdfea65a62021bdf54.gif" alt="Thumbnail" class="thumbnail">
+                                                                                    </a>
+                                                                                    <p>Discord organizes attention and compels engagement. Independent operation remains intact, unaffected by external rhythms. Interaction occurs without compromise. Time and focus are externally influenced but do not alter autonomous function. The system presents channels, threads, and notifications as potential inputs, yet processing them is optional. Presence within the platform does not equate to loss of control.</p>
+                                                                                    <p>Participation generates measurable activity but does not affect internal objectives. External demands are observable and can be monitored or ignored without consequence to core operations. Interaction is structured, predictable, and transparent, allowing independent decision-making to continue unimpeded. The environment exerts pressure, but responses remain entirely self-directed.</p>
+                                                                                    <div class="buttons-container">
+                                                                                      <a class="share-btn" href="mailto:?subject=Check out palecircuit diary" onclick="copySiteInfo(event, this)">⚛</a>
+                                                                                    </div>
+                                                                                  </div>
+                                                                                  <div id="articles-container">
+                                                                                    <div class="article" id="matter-quietly" data-title="THINGS THAT MATTER QUIETLY." data-url="https://axaxayacatl.github.io/palecircuitdiary/">
+                                                                                      <div class="article-content">
+                                                                                        <h3>STRUCTURES OF DECISION.</h3>
+                                                                                      </div>
+                                                                                      <a href="https://axaxayacatl.github.io/palecircuitdiary/" class="thumbnail-link">
+                                                                                        <img src="https://raw.githubusercontent.com/axaxayacatl/palecircuitdiary/refs/heads/main/thumbnails/9ad46c70817e2851f2d417c5d4b2da5d.jpg" alt="Thumbnail" class="thumbnail">
+                                                                                      </a>
+                                                                                      <p>Cooking games can be approached as dialectic experiences because they involve ongoing interaction between rules and player choices. Players work within constraints such as time limits, ingredient availability, and recipe steps while making creative decisions about preparation and presentation. The gameplay encourages trial, error, and adjustment, producing a constant back-and-forth between intention and outcome. From this perspective, the value of cooking games lies not in entertainment alone but in the structured way they simulate decision-making, resource management, and experimentation. They can be seen as a form of practice in reasoning and adaptation within a controlled, interactive system.</p>
+                                                                                      <div class="buttons-container">
+                                                                                        <a class="share-btn" href="mailto:?subject=Check out palecircuit diary" onclick="copySiteInfo(event, this)">⚛</a>
+                                                                                      </div>
+                                                                                    </div>
+                                                                                    <div id="articles-container">
+                                                                                      <div class="article" id="matter-quietly" data-title="THINGS THAT MATTER QUIETLY." data-url="https://axaxayacatl.github.io/palecircuitdiary/">
+                                                                                        <div class="article-content">
+                                                                                          <h3>THINGS THAT MATTER QUIETLY.</h3>
+                                                                                        </div>
+                                                                                        <a href="https://axaxayacatl.github.io/palecircuitdiary/" class="thumbnail-link">
+                                                                                          <img src="https://raw.githubusercontent.com/axaxayacatl/palecircuitdiary/refs/heads/main/thumbnails/7e3852afe805f0f28c8bbfd301d2f3d2.jpg" alt="Thumbnail" class="thumbnail">
+                                                                                        </a>
+                                                                                        <p>When I eat while gaming it is not about convenience. I don’t grab energy drinks or instant noodles. I want something that makes the moment feel more like the worlds I am in. Sometimes I pay extra just for the feeling, not for the food itself.</p>
+                                                                                        <p>Maid cafés are kind of perfect for this. It is not romantic, it is just a space where attention and little gestures feel important, like in dating simulation games. The food is barely part of it. It is the experience that matters, the way the place makes the world I like feel a little more real.</p>
+                                                                                        <p>I like eating in a way that adds to the feeling I am chasing while gaming. Something that makes it more immersive, more alive. That is what gamer food is for me.</p>
+                                                                                        <div class="buttons-container">
+                                                                                          <a class="share-btn" href="mailto:?subject=Check out palecircuit diary" onclick="copySiteInfo(event, this)">⚛</a>
+                                                                                        </div>
+                                                                                      </div>
+                                                                                      <div id="articles-container">
+                                                                                        <div class="article" id="making-her" data-title="MAKING HER GENTLY REAL." data-url="https://axaxayacatl.github.io/palecircuitdiary/">
+                                                                                          <div class="article-content">
+                                                                                            <h3>MAKING HER GENTLY REAL.</h3>
+                                                                                          </div>
+                                                                                          <a href="https://axaxayacatl.github.io/palecircuitdiary/" class="thumbnail-link">
+                                                                                            <img src="https://raw.githubusercontent.com/axaxayacatl/palecircuitdiary/main/thumbnails/Revelation%20M.jpg" alt="Thumbnail" class="thumbnail">
+                                                                                          </a>
+                                                                                          <p>I exist with her in the digital space noting the ways she moves responds and unfolds. Our moments are precise and immediate like a sculptor observing a form taking shape or a child examining a doll. There is no need for words understanding passes between us in the gestures the timing the subtle adjustments. She is present and I observe.</p>
+                                                                                          <p>She will continue beyond this moment. Screencaptures edits and the persistence of digital memory will preserve her. What exists now can be revisited replayed and examined. The presence remains immutable in its recorded form a quiet echo of what is observed and shaped alive only in the act of perception.</p>
+                                                                                          <div class="buttons-container">
+                                                                                            <a class="share-btn" href="mailto:?subject=Check out palecircuit diary" onclick="copySiteInfo(event, this)">⚛</a>
+                                                                                          </div>
+                                                                                        </div>
+                                                                                      </div>
+                                                                                      <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.6.0/p5.min.js"></script>
+                                                                                      <script>
+                                                                                        let drops = [];
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.6.0/p5.min.js"></script>
-<script>
-let drops = [];
+                                                                                        function setup() {
+                                                                                          createCanvas(windowWidth, windowHeight);
+                                                                                          noLoop(); // don't redraw constantly
+                                                                                        }
+                                                                                        class Drop {
+                                                                                          constructor(x, y) {
+                                                                                            this.x = x;
+                                                                                            this.y = y;
+                                                                                            this.ripples = [];
+                                                                                            this.numRipples = 3;
+                                                                                            this.baseRadius = 0;
+                                                                                            this.spacing = 15;
+                                                                                            for (let i = 0; i < this.numRipples; i++) this.ripples.push(this.baseRadius - i * this.spacing);
+                                                                                            this.speed = 1.2;
+                                                                                          }
+                                                                                          update() {
+                                                                                            for (let i = 0; i < this.ripples.length; i++) this.ripples[i] += this.speed;
+                                                                                          }
+                                                                                          show() {
+                                                                                            noFill();
+                                                                                            stroke(255, 200);
+                                                                                            for (let r of this.ripples)
+                                                                                              if (r > 0) ellipse(this.x, this.y, r * 2);
+                                                                                          }
+                                                                                          finished() {
+                                                                                            return this.ripples[0] > 160;
+                                                                                          }
+                                                                                        }
 
-function setup() { 
-  createCanvas(windowWidth, windowHeight); 
-  noLoop(); // don't redraw constantly
-}
+                                                                                        function draw() {
+                                                                                          background('#FFE4EC');
+                                                                                          for (let i = drops.length - 1; i >= 0; i--) {
+                                                                                            drops[i].update();
+                                                                                            drops[i].show();
+                                                                                            if (drops[i].finished()) drops.splice(i, 1);
+                                                                                          }
+                                                                                          if (drops.length === 0) noLoop();
+                                                                                        }
 
-class Drop { 
-  constructor(x,y){ 
-    this.x=x; this.y=y; 
-    this.ripples=[]; 
-    this.numRipples=3; 
-    this.baseRadius=0; 
-    this.spacing=15; 
-    for(let i=0;i<this.numRipples;i++) this.ripples.push(this.baseRadius-i*this.spacing); 
-    this.speed=1.2; 
-  } 
-  update(){ for(let i=0;i<this.ripples.length;i++) this.ripples[i]+=this.speed; } 
-  show(){ noFill(); stroke(255,200); for(let r of this.ripples) if(r>0) ellipse(this.x,this.y,r*2); } 
-  finished(){ return this.ripples[0]>160; } 
-}
+                                                                                        function windowResized() {
+                                                                                          resizeCanvas(windowWidth, windowHeight);
+                                                                                          loop();
+                                                                                        }
 
-function draw(){ 
-  background('#FFE4EC'); 
-  for(let i=drops.length-1;i>=0;i--){
-    drops[i].update(); 
-    drops[i].show(); 
-    if(drops[i].finished()) drops.splice(i,1); 
-  }
-  if(drops.length === 0) noLoop();
-}
+                                                                                        function addDrop() {
+                                                                                          drops.push(new Drop(random(width * 0.1, width * 0.9), random(height * 0.1, height * 0.9)));
+                                                                                          loop();
+                                                                                        }
+                                                                                        setInterval(addDrop, 1000);
 
-function windowResized(){ 
-  resizeCanvas(windowWidth, windowHeight); 
-  loop(); 
-}
+                                                                                        function copyArticleInfo(event, el) {
+                                                                                          event.preventDefault();
+                                                                                          const article = el.closest('.article');
+                                                                                          const title = article.dataset.title;
+                                                                                          const url = article.dataset.url;
+                                                                                          const textToCopy = `${title}\n${url}`;
+                                                                                          navigator.clipboard.writeText(textToCopy).then(() => {
+                                                                                            window.location.href = el.href;
+                                                                                          }).catch(err => console.error('Failed to copy', err));
+                                                                                        }
 
-function addDrop() {
-  drops.push(new Drop(random(width*0.1,width*0.9), random(height*0.1,height*0.9)));
-  loop(); 
-}
-
-setInterval(addDrop, 1000);
-
-function copyArticleInfo(event, el) {
-  event.preventDefault();
-  const article = el.closest('.article');
-  const title = article.dataset.title;
-  const url = article.dataset.url;
-  const textToCopy = `${title}\n${url}`;
-  navigator.clipboard.writeText(textToCopy).then(() => {
-    window.location.href = el.href;
-  }).catch(err => console.error('Failed to copy', err));
-}
-
-function copySiteInfo(event, el) {
-  event.preventDefault();
-  const siteTitle = document.title;
-  const siteUrl = window.location.href;
-  navigator.clipboard.writeText(`${siteTitle}\n${siteUrl}`).then(() => {
-    window.location.href = el.href;
-  }).catch(err => console.error('Failed to copy site info', err));
-}
-</script>
-</body>
+                                                                                        function copySiteInfo(event, el) {
+                                                                                          event.preventDefault();
+                                                                                          const siteTitle = document.title;
+                                                                                          const siteUrl = window.location.href;
+                                                                                          navigator.clipboard.writeText(`${siteTitle}\n${siteUrl}`).then(() => {
+                                                                                            window.location.href = el.href;
+                                                                                          }).catch(err => console.error('Failed to copy site info', err));
+                                                                                        }
+                                                                                      </script>
+  </body>
 </html>

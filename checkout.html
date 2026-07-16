@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>pale circuit diary // digital edition</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+
+<style>
+
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+}
+
+html,body{
+height:100%;
+background:#FFE4EC;
+font-family:"IBM Plex Mono",monospace;
+color:#4e4148;
+overflow-x:hidden;
+}
+
+body{
+display:flex;
+justify-content:center;
+align-items:flex-start;
+padding:70px 20px;
+background:
+radial-gradient(circle at 12% 18%,rgba(255,255,255,.75),transparent 20%),
+radial-gradient(circle at 80% 15%,rgba(255,255,255,.45),transparent 18%),
+radial-gradient(circle at 30% 85%,rgba(255,255,255,.55),transparent 20%),
+linear-gradient(#ffeef4,#ffe4ec);
+}
+
+body::before{
+content:"";
+position:fixed;
+inset:0;
+pointer-events:none;
+opacity:.12;
+background-image:
+linear-gradient(rgba(255,255,255,.45) 1px,transparent 1px),
+linear-gradient(90deg,rgba(255,255,255,.45) 1px,transparent 1px);
+background-size:28px 28px;
+animation:gridMove 22s linear infinite;
+}
+
+@keyframes gridMove{
+from{transform:translateY(0);}
+to{transform:translateY(28px);}
+}
+
+.panel{
+
+width:min(520px,92vw);
+
+background:rgba(255,255,255,.40);
+
+backdrop-filter:blur(18px);
+-webkit-backdrop-filter:blur(18px);
+
+border:1px solid rgba(255,255,255,.75);
+
+border-radius:22px;
+
+padding:34px;
+
+position:relative;
+
+box-shadow:
+0 12px 40px rgba(221,169,190,.16),
+inset 0 0 0 1px rgba(255,255,255,.28);
+
+}
+
+.panel::after{
+
+content:"";
+
+position:absolute;
+inset:0;
+
+pointer-events:none;
+
+background:
+linear-gradient(140deg,
+transparent,
+rgba(255,255,255,.18),
+transparent);
+
+}
+
+.label{
+
+font-size:11px;
+
+letter-spacing:.34em;
+
+text-transform:uppercase;
+
+opacity:.48;
+
+margin-bottom:8px;
+
+}
+
+h1{
+
+font-size:22px;
+
+font-weight:400;
+
+letter-spacing:.12em;
+
+margin-bottom:26px;
+
+text-transform:lowercase;
+
+}
+
+.cover{
+
+width:120px;
+height:150px;
+
+margin:auto;
+
+border-radius:12px;
+
+background:
+
+linear-gradient(rgba(255,255,255,.15),rgba(255,255,255,.08)),
+radial-gradient(circle at center,rgba(255,255,255,.55),transparent 58%),
+linear-gradient(145deg,#f9d8e5,#fff3f8);
+
+border:1px solid rgba(255,255,255,.72);
+
+display:flex;
+align-items:center;
+justify-content:center;
+
+position:relative;
+
+overflow:hidden;
+
+}
+
+.cover::before{
+
+content:"";
+
+position:absolute;
+
+width:120px;
+height:120px;
+
+border-radius:50%;
+
+border:1px solid rgba(255,255,255,.55);
+
+animation:rotate 18s linear infinite;
+
+}
+
+.cover::after{
+
+content:"";
+
+position:absolute;
+
+width:76px;
+height:76px;
+
+border-radius:50%;
+
+border:1px dashed rgba(255,255,255,.65);
+
+animation:reverse 10s linear infinite;
+
+}
+
+@keyframes rotate{
+
+from{transform:rotate(0);}
+to{transform:rotate(360deg);}
+
+}
+
+@keyframes reverse{
+
+from{transform:rotate(360deg);}
+to{transform:rotate(0);}
+
+}
+
+.cover span{
+
+position:relative;
+
+z-index:5;
+
+font-size:10px;
+
+letter-spacing:.22em;
+
+opacity:.55;
+
+}
+
+.meta{
+
+margin-top:34px;
+
+display:grid;
+
+grid-template-columns:1fr auto;
+
+row-gap:14px;
+
+font-size:12px;
+
+}
+
+.meta div{
+
+padding-bottom:10px;
+
+border-bottom:1px solid rgba(255,255,255,.45);
+
+}
+
+.value{
+
+opacity:.68;
+
+text-align:right;
+
+}
+
+.note{
+
+margin-top:30px;
+
+font-size:12px;
+
+line-height:2;
+
+opacity:.72;
+
+}
+
+button{
+
+margin-top:34px;
+
+width:100%;
+
+padding:16px;
+
+background:rgba(255,255,255,.52);
+
+border:1px solid rgba(255,255,255,.85);
+
+border-radius:14px;
+
+font-family:inherit;
+
+font-size:12px;
+
+letter-spacing:.32em;
+
+text-transform:uppercase;
+
+cursor:pointer;
+
+transition:.25s;
+
+}
+
+button:hover{
+
+background:white;
+
+transform:translateY(-2px);
+
+}
+
+.footer{
+
+margin-top:34px;
+
+padding-top:18px;
+
+border-top:1px solid rgba(255,255,255,.45);
+
+font-size:10px;
+
+letter-spacing:.26em;
+
+opacity:.42;
+
+text-align:center;
+
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="panel">
+
+<div class="label">
+archive object
+</div>
+
+<h1>
+pale circuit diary
+</h1>
+
+<div class="cover">
+<span>pdf</span>
+</div>
+
+<div class="meta">
+
+<div>edition</div>
+<div class="value">digital pdf</div>
+
+<div>price</div>
+<div class="value">$9.00 usd</div>
+
+<div>ethereum</div>
+<div class="value" id="ethPrice">loading...</div>
+
+<div>wallet</div>
+<div class="value" id="wallet">not connected</div>
+
+</div>
+
+<div class="note">
+
+This document becomes available immediately after blockchain confirmation.
+The ethereum value is calculated at the time of purchase.
+
+</div>
+
+<button id="purchase">
+purchase edition
+</button>
+
+<div class="footer">
+
+pale circuit diary archive
+
+</div>
+
+</div>
+
+<script>
+
+const wallet=document.getElementById("wallet");
+const ethPrice=document.getElementById("ethPrice");
+const button=document.getElementById("purchase");
+
+ethPrice.textContent="0.00 eth";
+
+button.addEventListener("click",()=>{
+
+alert(
+"MetaMask integration will begin here.\n\nFuture flow:\n\nConnect Wallet\nCalculate ETH\nOpen MetaMask\nConfirm Transaction\nUnlock PDF"
+);
+
+});
+
+</script>
+
+</body>
+</html>

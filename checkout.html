@@ -371,6 +371,8 @@ const wallet = document.getElementById("wallet");
 const ethPrice = document.getElementById("ethPrice");
 const button = document.getElementById("purchase");
 
+let currentEthAmount = 0;
+
 async function updatePrice(){
 
     try{
@@ -383,19 +385,21 @@ async function updatePrice(){
 
         const usdPerEth = parseFloat(data.data.rates.USD);
 
-        const ethAmount = PRODUCT_PRICE / usdPerEth;
+        currentEthAmount = PRODUCT_PRICE / usdPerEth;
 
-        ethPrice.textContent = ethAmount.toFixed(6) + " eth";
+        ethPrice.textContent =
+            currentEthAmount.toFixed(6) + " eth";
 
-        button.textContent = "purchase " + ethAmount.toFixed(6) + " eth";
+        button.textContent =
+            "purchase " +
+            currentEthAmount.toFixed(6) +
+            " eth";
 
     }
 
     catch(error){
 
         ethPrice.textContent = "unavailable";
-
-        button.textContent = "purchase edition";
 
         console.error(error);
 
@@ -406,6 +410,65 @@ async function updatePrice(){
 updatePrice();
 
 setInterval(updatePrice,60000);
+
+button.addEventListener("click",connectWallet);
+
+async function connectWallet(){
+
+    if(!window.ethereum){
+
+        alert("MetaMask was not detected.");
+
+        return;
+
+    }
+
+    try{
+
+        await window.ethereum.request({
+
+            method:"eth_requestAccounts"
+
+        });
+
+        wallet.textContent="verified";
+
+        button.textContent=
+            "purchase " +
+            currentEthAmount.toFixed(6) +
+            " eth";
+
+    }
+
+    catch(error){
+
+        console.error(error);
+
+    }
+
+}
+
+if(window.ethereum){
+
+    window.ethereum.on("accountsChanged",accounts=>{
+
+        if(accounts.length===0){
+
+            wallet.textContent="not connected";
+
+        }
+
+        else{
+
+            wallet.textContent="verified";
+
+        }
+
+    });
+
+}
+
+</script>
 
 </script>
 </body>

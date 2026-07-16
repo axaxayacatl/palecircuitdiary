@@ -367,6 +367,8 @@ pale circuit diary archive
 
 const PRODUCT_PRICE = 9.00;
 
+const RECEIVER = "0x460dD25d273D75CDADFe16a758483Ad8b38D182D";
+
 const wallet = document.getElementById("wallet");
 const ethPrice = document.getElementById("ethPrice");
 const button = document.getElementById("purchase");
@@ -380,6 +382,10 @@ async function updatePrice(){
         const response = await fetch(
             "https://api.coinbase.com/v2/exchange-rates?currency=ETH"
         );
+
+        if(!response.ok){
+            throw new Error("Unable to fetch ETH price.");
+        }
 
         const data = await response.json();
 
@@ -399,9 +405,70 @@ async function updatePrice(){
 
     catch(error){
 
+        console.error(error);
+
         ethPrice.textContent = "unavailable";
 
+        button.textContent = "purchase edition";
+
+    }
+
+}
+
+async function purchase(){
+
+    if(!window.ethereum){
+
+        alert("MetaMask is not installed.");
+
+        return;
+
+    }
+
+    try{
+
+        const accounts = await window.ethereum.request({
+
+            method:"eth_requestAccounts"
+
+        });
+
+        wallet.textContent = "verified";
+
+        const valueWei = BigInt(
+            Math.round(currentEthAmount * 1000000000000000000)
+        );
+
+        const txHash = await window.ethereum.request({
+
+            method:"eth_sendTransaction",
+
+            params:[{
+
+                from:accounts[0],
+
+                to:RECEIVER,
+
+                value:"0x" + valueWei.toString(16)
+
+            }]
+
+        });
+
+        console.log("Transaction Hash:",txHash);
+
+        button.textContent = "payment submitted";
+
+    }
+
+    catch(error){
+
         console.error(error);
+
+        button.textContent =
+            "purchase " +
+            currentEthAmount.toFixed(6) +
+            " eth";
 
     }
 
@@ -411,64 +478,27 @@ updatePrice();
 
 setInterval(updatePrice,60000);
 
-button.addEventListener("click",connectWallet);
-
-async function connectWallet(){
-
-    if(!window.ethereum){
-
-        alert("MetaMask was not detected.");
-
-        return;
-
-    }
-
-    try{
-
-        await window.ethereum.request({
-
-            method:"eth_requestAccounts"
-
-        });
-
-        wallet.textContent="verified";
-
-        button.textContent=
-            "purchase " +
-            currentEthAmount.toFixed(6) +
-            " eth";
-
-    }
-
-    catch(error){
-
-        console.error(error);
-
-    }
-
-}
+button.addEventListener("click",purchase);
 
 if(window.ethereum){
 
     window.ethereum.on("accountsChanged",accounts=>{
 
-        if(accounts.length===0){
+        if(accounts.length){
 
-            wallet.textContent="not connected";
+            wallet.textContent = "verified";
 
         }
 
         else{
 
-            wallet.textContent="verified";
+            wallet.textContent = "not connected";
 
         }
 
     });
 
 }
-
-</script>
 
 </script>
 </body>
